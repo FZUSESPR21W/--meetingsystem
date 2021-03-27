@@ -10,6 +10,9 @@ enum ComponentPrefixs {
 
   // 会议议程卡片
   ForumCard = 'ForumCard',
+
+  // 关注人卡片
+  FollowCard = 'FollowCard',
 }
 
 export default ComponentPrefixs;
