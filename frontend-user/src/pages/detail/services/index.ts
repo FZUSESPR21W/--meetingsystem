@@ -26,7 +26,7 @@ const getData = async (id: number, page: number, token: string) => {
   };
 };
 
-const follow = async (follow: number) => {
+const follow = async (id: number, follow_key: number, token: string) => {
   return {
     error_code: 0,
   };

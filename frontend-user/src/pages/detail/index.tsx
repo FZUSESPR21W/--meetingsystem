@@ -7,28 +7,32 @@ import { history, useDispatch, useSelector } from 'umi';
 import { ModelNameSpaces, RootStore } from '@/types';
 
 const DetailPage = () => {
-  console.log(history.location.state);
-
+  const id = history.location.state;
   const dispatch = useDispatch();
   const { list, isFollow } = useSelector((store: RootStore) => {
     const { [ModelNameSpaces.Detail]: DetailModel } = store;
     return DetailModel;
   });
 
-  useEffect(() => {});
+  useEffect(() => {
+    dispatch({
+      type: `${ModelNameSpaces.Detail}/queryFollow`,
+      payload: id,
+    });
+  }, []);
 
   const triggerFetch = () => {
     dispatch({
       type: `${ModelNameSpaces.Detail}/getData`,
+      payload: id,
     });
   };
 
   const handleFollowClick = async (follow: number) => {
     const value = await dispatch({
       type: `${ModelNameSpaces.Detail}/follow`,
-      payload: follow,
+      payload: { id, follow },
     });
-    console.log(value);
   };
 
   return (
@@ -46,7 +50,7 @@ const DetailPage = () => {
                   type="ghost"
                   size="large"
                   icon={<HeartOutlined />}
-                  onClick={(e) => handleFollowClick(1)}
+                  onClick={(e) => handleFollowClick(0)}
                 >
                   关注
                 </Button>
@@ -56,7 +60,7 @@ const DetailPage = () => {
                   type="ghost"
                   size="large"
                   icon={<HeartFilled />}
-                  onClick={(e) => handleFollowClick(0)}
+                  onClick={(e) => handleFollowClick(1)}
                 >
                   取消关注
                 </Button>

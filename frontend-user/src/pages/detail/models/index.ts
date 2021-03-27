@@ -40,34 +40,47 @@ const DetailModel: DetailModelType = {
   state: initialState,
   effects: {
     *queryFollow({ payload }, { call, put, select }) {
-      const follow = payload;
-      const res = yield call(DetailService.queryFollow, follow);
+      const { token } = yield select((store: RootStore) => {
+        const { [ModelNameSpaces.User]: UserModal } = store;
+        return UserModal;
+      });
+      const id = payload;
+      const res = yield call(DetailService.queryFollow, id, token);
       yield put({
         type: 'changeFollow',
         payload: res.data.follow,
       });
     },
     *getData({ payload }, { call, put, select }) {
+      const { token } = yield select((store: RootStore) => {
+        const { [ModelNameSpaces.User]: UserModal } = store;
+        return UserModal;
+      });
       const { page } = yield select((store: RootStore) => {
         const { [ModelNameSpaces.Detail]: DetailModal } = store;
         return DetailModal;
       });
+      const id = payload;
       yield put({
         type: `changePage`,
         payload: page + 1,
       });
-      const res = yield call(DetailService.getData, page);
+      const res = yield call(DetailService.getData, id, page, token);
       yield put({
         type: `saveData`,
         payload: res.data,
       });
     },
     *follow({ payload }, { call, put, select }) {
-      const follow = payload;
-      const res = yield call(DetailService.follow, follow);
+      const { token } = yield select((store: RootStore) => {
+        const { [ModelNameSpaces.User]: UserModal } = store;
+        return UserModal;
+      });
+      const { id, follow } = payload;
+      const res = yield call(DetailService.follow, id, follow, token);
       yield put({
         type: 'changeFollow',
-        payload: follow,
+        payload: follow === 1 ? 0 : 1,
       });
       return res['error_code'] === 0;
     },
@@ -83,7 +96,7 @@ const DetailModel: DetailModelType = {
       state.page = action.payload;
     },
     changeFollow(state, action) {
-      state.isFollow = action.payload;
+      state.isFollow = action.payload === 1;
     },
   },
 };
