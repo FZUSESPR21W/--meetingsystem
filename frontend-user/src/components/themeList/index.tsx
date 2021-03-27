@@ -60,14 +60,23 @@ const ThemeList = (props: ThemeListProps) => {
           size="large"
           dataSource={data}
           renderItem={(item) => (
-            <List.Item
-              key={item.id}
-              onClick={(e) => handleDetailClick(item.id)}
-            >
+            <List.Item key={item.id}>
               <List.Item.Meta
-                avatar={<CircleLetter letter={item.issue} />}
+                avatar={
+                  <CircleLetter
+                    onClick={(e) => handleDetailClick(item.id)}
+                    letter={item.issue}
+                  />
+                }
                 description={'时间: ' + item.time}
-                title={'#' + item.issue}
+                title={
+                  <span
+                    onClick={(e) => handleDetailClick(item.id)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    {'#' + item.issue}
+                  </span>
+                }
               />
               {item.content}
             </List.Item>

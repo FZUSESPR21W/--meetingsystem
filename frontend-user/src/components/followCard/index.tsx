@@ -29,8 +29,8 @@ const FollowCard = (props: FollowCardProps) => {
     getData();
   }, []);
 
-  const handleFollowClick = async (follow: number) => {
-    const value = await triggerFollow(follow);
+  const handleFollowClick = async (id: number, follow: number) => {
+    const value = await triggerFollow(id, follow);
     if (value !== true) {
       message.error('关注或取消关注失败');
       return;
@@ -44,8 +44,8 @@ const FollowCard = (props: FollowCardProps) => {
 
   const renderActions = (item: followItemProps) => {
     if (item.follow === 0)
-      return [<HeartOutlined onClick={(e) => handleFollowClick(0)} />];
-    return [<HeartFilled onClick={(e) => handleFollowClick(1)} />];
+      return [<HeartOutlined onClick={(e) => handleFollowClick(item.id, 0)} />];
+    return [<HeartFilled onClick={(e) => handleFollowClick(item.id, 1)} />];
   };
 
   const handleDetailClick = (id: number) => {
@@ -60,14 +60,22 @@ const FollowCard = (props: FollowCardProps) => {
           dataSource={data}
           renderItem={(item) => {
             return (
-              <List.Item
-                key={item.id}
-                actions={renderActions(item)}
-                onClick={(e) => handleDetailClick(item.id)}
-              >
+              <List.Item key={item.id} actions={renderActions(item)}>
                 <List.Item.Meta
-                  avatar={<CircleLetter letter={item.forum} />}
-                  title={item.forum}
+                  avatar={
+                    <CircleLetter
+                      letter={item.forum}
+                      onClick={(e) => handleDetailClick(item.id)}
+                    />
+                  }
+                  title={
+                    <span
+                      onClick={(e) => handleDetailClick(item.id)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      {item.forum}
+                    </span>
+                  }
                 />
               </List.Item>
             );

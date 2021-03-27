@@ -31,10 +31,13 @@ export default function IndexPage() {
     });
   };
 
-  const follow = async (follow: number) => {
+  const follow = async (id: number, follow: number) => {
     return dispatch({
       type: `${ModelNameSpaces.Index}/follow`,
-      payload: follow,
+      payload: {
+        id,
+        follow,
+      },
     });
   };
 
@@ -54,7 +57,7 @@ export default function IndexPage() {
         <Col span="16">
           <ThemeList
             triggerFetch={fetchListData}
-            data={data.list}
+            data={data.result}
             hasMore={data.hasMore}
           />
         </Col>

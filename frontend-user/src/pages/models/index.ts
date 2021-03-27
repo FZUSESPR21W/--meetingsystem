@@ -22,7 +22,7 @@ export interface followItemProps {
 }
 
 export interface dataProps {
-  list: listItemProps[];
+  result: listItemProps[];
   page: number;
   pageSize: 10;
   total: number;
@@ -65,7 +65,7 @@ export interface IndexModelType {
 
 export const initialState: IndexModelState = {
   data: {
-    list: [],
+    result: [],
     page: 0,
     pageSize: 10,
     total: 21,
@@ -84,11 +84,19 @@ const IndexModel: IndexModelType = {
   state: initialState,
   effects: {
     *follow({ payload }, { call, put, select }) {
-      const follow = payload;
-      const res = yield call(IndexService.follow, follow);
+      const { token } = yield select((store: RootStore) => {
+        const { [ModelNameSpaces.User]: UserModal } = store;
+        return UserModal;
+      });
+      const { id, follow } = payload;
+      const res = yield call(IndexService.follow, id, follow, token);
       return res['error_code'] === 0;
     },
     *getData({ payload }, { call, put, select }) {
+      const { token } = yield select((store: RootStore) => {
+        const { [ModelNameSpaces.User]: UserModal } = store;
+        return UserModal;
+      });
       const { page } = yield select((store: RootStore) => {
         const { [ModelNameSpaces.Index]: indexModal } = store;
         const { data } = indexModal;
@@ -98,41 +106,36 @@ const IndexModel: IndexModelType = {
         type: `changeDataPage`,
         payload: page + 1,
       });
-      const res = yield call(IndexService.getData, page);
+      const res = yield call(IndexService.getData, page, token);
       yield put({
         type: `saveData`,
-        payload: res,
+        payload: res.data,
       });
     },
     *getForum({ payload }, { call, put, select }) {
-      const { page } = yield select((store: RootStore) => {
-        const { [ModelNameSpaces.Index]: indexModal } = store;
-        const { forum } = indexModal;
-        return forum;
+      const { token } = yield select((store: RootStore) => {
+        const { [ModelNameSpaces.User]: UserModal } = store;
+        return UserModal;
       });
-      yield put({
-        type: `changeForumPage`,
-        payload: page + 1,
-      });
-      const res = yield call(IndexService.getForum, page);
+      const res = yield call(IndexService.getForum, token);
       yield put({
         type: `saveForum`,
-        payload: res,
+        payload: res.data,
       });
     },
     *getMetting({ payload }, { call, put }) {
       const res = yield call(IndexService.getMetting);
       yield put({
         type: `saveMetting`,
-        payload: res,
+        payload: res.data,
       });
     },
   },
   reducers: {
     saveData(state, action) {
-      const { list, page, pageSize, total } = action.payload;
+      const { result, page, pageSize, total } = action.payload;
       state.data = {
-        list: [...state.data.list, ...list],
+        result: [...state.data.result, ...result],
         page,
         pageSize,
         total,
