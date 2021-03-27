@@ -2,6 +2,7 @@ import React from 'react';
 import styles from './index.less';
 import { Row, Col, Card, Button } from 'antd';
 import { HeartFilled, HeartOutlined } from '@ant-design/icons';
+import { ThemeList } from '@/components';
 
 const DetailPage = () => {
   return (
@@ -17,6 +18,9 @@ const DetailPage = () => {
               </Button>
             </div>
           </Card>
+        </Col>
+        <Col span="24">
+          <ThemeList />
         </Col>
       </Row>
     </div>
