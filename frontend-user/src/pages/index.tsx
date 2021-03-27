@@ -31,13 +31,24 @@ export default function IndexPage() {
     });
   };
 
+  const follow = async (follow: number) => {
+    return dispatch({
+      type: `${ModelNameSpaces.Index}/follow`,
+      payload: follow,
+    });
+  };
+
   return (
     <div className={styles.container}>
       <Row gutter={16}>
         <Col span="8">
           <ForumCard data={metting} triggerFetch={fetchForumData} />
           <div className={styles.followCardContainer}>
-            <FollowCard triggerFetch={fetchFollowData} data={forum} />
+            <FollowCard
+              triggerFetch={fetchFollowData}
+              data={forum}
+              triggerFollow={follow}
+            />
           </div>
         </Col>
         <Col span="16">

@@ -52,6 +52,8 @@ export interface IndexModelType {
     getForum: Effect;
     /** 获取会议议程数据 */
     getMetting: Effect;
+    /** 关注和取消关注 */
+    follow: Effect;
   };
   reducers: {
     saveData: ImmerReducer<IndexModelState>;
@@ -81,6 +83,11 @@ const IndexModel: IndexModelType = {
   namespace: ModelNameSpaces.Index,
   state: initialState,
   effects: {
+    *follow({ payload }, { call, put, select }) {
+      const follow = payload;
+      const res = yield call(IndexService.follow, follow);
+      return res['error_code'] === 0;
+    },
     *getData({ payload }, { call, put, select }) {
       const { page } = yield select((store: RootStore) => {
         const { [ModelNameSpaces.Index]: indexModal } = store;
@@ -133,7 +140,7 @@ const IndexModel: IndexModelType = {
       };
     },
     saveForum(state, action) {
-      const { list, page, pageSize, total } = action.payload;
+      const list = action.payload;
       state.forum = [...state.forum, ...list];
     },
     saveMetting(state, action) {

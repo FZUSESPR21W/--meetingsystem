@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { setClsPrefixHOC } from '@/utils/setClsPrefixHOC';
 import { ComponentPrefixs } from '@/constants';
-import { Card, List, Skeleton, Avatar } from 'antd';
+import { Card, List, Skeleton, message } from 'antd';
 import { HeartOutlined, HeartFilled } from '@ant-design/icons';
 import './index.less';
 import CircleLetter from '../circleLetter';
@@ -10,11 +10,12 @@ import { followItemProps } from '@/pages/models';
 const setClsPrefix = setClsPrefixHOC(ComponentPrefixs.FollowCard);
 interface FollowCardProps {
   triggerFetch: Function;
+  triggerFollow: Function;
   data: followItemProps[];
 }
 
 const FollowCard = (props: FollowCardProps) => {
-  const { data, triggerFetch } = props;
+  const { data, triggerFetch, triggerFollow } = props;
   const [loading, setLoading] = useState(false);
 
   const getData = async () => {
@@ -27,9 +28,23 @@ const FollowCard = (props: FollowCardProps) => {
     getData();
   }, []);
 
+  const handleFollowClick = async (follow: number) => {
+    const value = await triggerFollow(follow);
+    if (value !== true) {
+      message.error('关注或取消关注失败');
+      return;
+    }
+    if (follow === 0) {
+      message.info('关注成功');
+    } else {
+      message.info('取消关注成功');
+    }
+  };
+
   const renderActions = (item: followItemProps) => {
-    if (item.follow === 0) return [<HeartOutlined />];
-    return [<HeartFilled />];
+    if (item.follow === 0)
+      return [<HeartOutlined onClick={(e) => handleFollowClick(0)} />];
+    return [<HeartFilled onClick={(e) => handleFollowClick(1)} />];
   };
 
   return (
