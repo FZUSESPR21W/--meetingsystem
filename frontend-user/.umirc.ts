@@ -9,4 +9,10 @@ export default defineConfig({
   },
   antd: {},
   fastRefresh: {},
+  proxy: {
+    '/api': {
+      target: 'http://47.98.152.179:8000',
+      changeOrigin: true,
+    },
+  },
 });
