@@ -133,7 +133,7 @@ class Data(object):
     # 用户关注的分论坛列表
     def forum_list(self, user_id):
         with self.db.cursor() as cursor:
-            sql = "SELECT `r`.`sub_forum_id`,`s`.`issue` FROM `role` AS r JOIN `sub_forum` AS s ON `r`.`sub_forum_id`=`s`.`sub_forum_id` WHERE `r`.`user_id`=%s LIMIT 5"
+            sql = "SELECT `r`.`sub_forum_id`,`s`.`issue` FROM `role` AS r JOIN `sub_forum` AS s ON `r`.`sub_forum_id`=`s`.`sub_forum_id` WHERE `r`.`user_id`=%s"
             cursor.execute(sql, user_id)
             sub_forum_id = self.db.commit()
             cursor.close()
