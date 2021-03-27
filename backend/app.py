@@ -1,28 +1,28 @@
 from flask import Flask,request
-from backend.Util.token import create_token, validate_token
-from backend.Database.database import Data
+from Util.token import create_token, validate_token
+from Database.database import Data
 import json
 
 app = Flask(__name__)
 data = Data()
 
-@app.route('/front',methods="GET")
+@app.route('/front',methods=["GET"])
+def indexs():
+    return
+
+@app.route('/backend',methods=["GET"])
 def index():
     return
 
-@app.route('/backend',methods="GET")
-def index():
-    return
-
-@app.route('/api/user/meeting',methods="GET")
-def message():
+@app.route('/api/user/meeting',methods=["GET"])
+def messages():
     forumid = data.get_task(1)
     key = []
     for id in forumid:
         result = data.get_forum(id)
         subkey = {
-            "time":result[3],
-            "arrange":result[2]
+            "time":result['time'],
+            "arrange":result['issue']
         }
         key.append(subkey)
     rex = {
@@ -35,11 +35,12 @@ def message():
     }
     return json.dumps(rex)
 
-@app.route('/api/user/forum/message',methods="POST")
+@app.route('/api/user/forum/message',methods=["POST"])
 def message():
-    token = request.form.get("token")
-    user_id,msg = validate_token(token)
-    user_id = user_id["user_id"]
+    p = request.get_json()
+    token = p["token"]
+    pay,msg = validate_token(token)
+    user_id = pay["user_id"]
     page = request.form.get("page")
     id = request.form.get("id")
     if id is None:  #timeline
@@ -90,44 +91,44 @@ def message():
     }
     return json.dumps(resx)
 
-@app.route('/api/user/forum/list',methods="POST")   #curd forum名 issue
+@app.route('/api/user/forum/list',methods=["POST"])
 def forum_list():
-    token = request.form.get("token")
-    user_id,msg = validate_token(token)
-    user_id = user_id["user_id"]
+    token = request.form["token"]
+    pay,msg = validate_token(token)
+    user_id = pay["user_id"]
     setx = data.all_forum()
     keyset = data.forum_list(user_id)
     rex= []
     for key in setx:
         flag = 0
         for subgu in keyset:
-            if key[0] == subgu[0]:
+            if key["sub_forum_id"] == subgu["sub_forum_id"]:
                 flag = 1
-        if flag == 0:
-            subset = {
-                "follow":flag,
-                "forum":key[1],
-                "id":key[0]
-            }
-            rex.append(subset)
-        else:
-            subset = {
-                "follow":flag,
-                "forum":key[1],
-                "id":key[0]
-            }
-            rex.append(subset)
+            if flag == 0:
+                subset = {
+                    "follow":flag,
+                    "forum":subgu['issue'],
+                    "id":key["sub_forum_id"]
+                }
+                rex.append(subset)
+            else:
+                subset = {
+                    "follow":flag,
+                    "forum":subgu['issue'],
+                    "id":key["sub_forum_id"]
+                }
+                rex.append(subset)
     result = {
         "error_code":0,
         "data":rex
     }
     return json.dumps(result)
 
-@app.route('/api/user/follow/',methods="POST")
+@app.route('/api/user/follow/',methods=["POST"])
 def follow():
-    token = request.form.get("token")
-    user_id,msg = validate_token(token)
-    user_id = user_id["user_id"]
+    token = request.form["token"]
+    pay,msg = validate_token(token)
+    user_id = pay["user_id"]
     follow_key = request.form.get("follow_key")
     ids = request.form.get("ids")
     for id in ids:
@@ -140,30 +141,30 @@ def follow():
     }
     return json.dumps(rex)
 
-@app.route('/api/user/register',methods="POST")
+@app.route('/api/user/register',methods=["POST"])
 def register():
-    username = request.form.get("username")
-    password = request.form.get("password")
-    email = request.form.get("email")
+    username = request.form["username"]
+    password = request.form["password"]
+    email = request.form["email"]
     data.add_user(language="0",email=email,password=password,username=username)
     rex = {
         "error_code":0,
     }
     return json.dumps(rex)
 
-@app.route('/api/user/login',methods="POST")
+@app.route('/api/user/login',methods=["POST"])
 def login():
-    email = request.form.get("email")
-    password = request.form.get("password")
+    email = request.form["email"]
+    password = request.form["password"]
     result = data.get_user(email,password)
     if result is None:
         rex = {
             "error_code":1
         }
         return json.dumps(rex)
-    token = create_token(result[0])
-    username = result[4]
-    first = result[5]
+    token = create_token(result['user_id'])
+    username = result['username']
+    first = result['status']
     rex = {
         "error_code":0,
         "data":{
@@ -174,28 +175,33 @@ def login():
     }
     return json.dumps(rex)
 
-@app.route('/api/admin/login',methods="POST")
-def login():
-    email = request.form.get("email")
-    password = request.form.get("password")
+@app.route('/api/admin/login',methods=["POST"])
+def logins():
+    email = request.form["email"]
+    password = request.form["password"]
     result,type = data.get_admin(email,password)
-    token = create_token(result[0])
-    username = result[4]
-    rex = {
-        "error_code": 0,
-        "data": {
-            "token": token,
-            "username": username,
-            "type": type
+    if result is not None:
+        token = create_token(result['user_id'])
+        username = result['username']
+        rex = {
+            "error_code": 0,
+            "data": {
+                "token": token,
+                "username": username,
+                "type": type
+            }
         }
+        return json.dumps(rex)
+    rex = {
+        "error_code":1
     }
     return json.dumps(rex)
 
-@app.route('/api/admin/stastic',methods="POST")
-def static():
-    token = request.form.get("token")
-    user_id,msg = validate_token(token)
-    user_id = user_id["user_id"]
+@app.route('/api/admin/stastic',methods=["POST"])
+def statics():
+    token = request.form["token"]
+    pay,msg = validate_token(token)
+    user_id = pay["user_id"]
     result,total = data.get_statistics()
     res = []
     rex = {
@@ -215,43 +221,48 @@ def static():
     }
     return json.dumps(resultx)
 
-@app.route('/api/admin/getParticipant',methods="POST")  #curd
+@app.route('/api/admin/getParticipant',methods=["POST"])  #1
 def getpatica():
-    token = request.form.get("token")
-    user_id,msg = validate_token(token)
-    user_id = user_id["user_id"]
+    token = request.form["token"]
+    pay,msg = validate_token(token)
+    user_id = pay["user_id"]
     result = data.get_participant(user_id)
     res = []
-    for re in result:
-        da = {
-            "username":re["username"],
-            "email":re["email"]
+    if result is not None:
+        for re in result:
+            da = {
+                "username":re["username"],
+                "email":re["email"]
+            }
+            res.append(da)
+        resultx = {
+            "error_code":0,
+            "data":res
         }
-        res.append(da)
-    resultx = {
-        "error_code":0,
-        "data":res
-    }
-    return json.dumps(res)
+    else:
+        resultx = {
+            "error_code":1
+        }
+    return json.dumps(resultx)
 
-@app.route('/api/admin/publish',methods="POST")
+@app.route('/api/admin/publish',methods=["POST"])
 def podcast():
-    id = request.form.get("id")
-    content = request.form.get("content")
-    token = request.form.get("token")
-    user_id,msg = validate_token(token)
-    user_id = user_id["user_id"]
+    id = request.form["id"]
+    content = request.form["content"]
+    token = request.form["token"]
+    pay,msg = validate_token(token)
+    user_id = pay["user_id"]
     data.publish_message(id,content,user_id)
     rex = {
         "error_code":0
     }
     return json.dumps(rex)
 
-@app.route('/api/admin/forums',methods="POST")
+@app.route('/api/admin/forums',methods=["POST"])
 def forums():
-    token = request.form.get("token")
-    user_id,msg = validate_token(token)
-    user_id = user_id["user_id"]
+    token = request.form["token"]
+    pay,msg = validate_token(token)
+    user_id = pay["user_id"]
     result = data.get_forum_charge(user_id)
     res = {
         "error_code":0,
@@ -259,10 +270,10 @@ def forums():
     }
     return json.dumps(res)
 
-@app.route('/api/user/query/follow',methods="POST")
+@app.route('/api/user/query/follow',methods=["POST"])
 def queryf():
-    id = request.form.get("id")
-    token = request.form.get("token")
+    id = request.form["id"]
+    token = request.form["token"]
     user_id = validate_token(token)["user_id"]
     rex = {
         "error_code":0,
