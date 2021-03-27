@@ -1,6 +1,7 @@
 <!--  -->
 <template>
     <div class='Brief'>
+        <a-spin size="large" :spinning="spinning" />
         <div class="container">
             <div class="block" v-for="forum in forums" :key="forum">
                 <a-statistic :title="forum.name" :value="forum.size" />
@@ -18,13 +19,15 @@ export default {
     components: {},
     data () {
         return {
-            forums: []
+            forums: [],
+            spinning: true
         }
     },
     methods: {
 
     },
     mounted() {
+        this,this.spinning = true;
         let that = this;
         request.getStastic({
             token: localStorage.getItem("token")
@@ -32,6 +35,7 @@ export default {
         .then((res)=>{
             // console.log(res);
             that.forums = res.data;
+            that.spinning = false;
         })  
     }
 }

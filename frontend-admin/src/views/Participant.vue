@@ -4,6 +4,7 @@
         <a-layout-content
             :style="{ margin: '24px 16px', padding: '24px', background: '#fff', minHeight: '280px' }"
         >
+            <a-spin size="large" :spinning="spinning" />
             <a-table 
                 :pagination="pager" 
                 :columns="columns" 
@@ -40,11 +41,13 @@ export default {
             pager: {
                 total: 1,
                 current: 1,
-            }
+            },
+            spinning: true,
         }
     },
     methods: {
         getParticipants(pagenum) {
+            this.spinning = true;
             let that = this;
             request.getParticipant({
                 page: pagenum,
@@ -53,10 +56,12 @@ export default {
             .then((res)=>{
                 if(res.error_code != 0) {
                     that.$message.error('请求错误');
+                    this.spinning = false;
                 }
                 else {
                     that.participants = res.data;
-                    that.pager.total = res.totalpage;
+                    that.pager.total = res.data.length;
+                    this.spinning = false;
                 }
             })
         },

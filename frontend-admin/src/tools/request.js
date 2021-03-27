@@ -22,15 +22,15 @@ const request = {
             error_code: 0,
             data: [
                 {
-                    name: "total",
+                    name: "会议总人数",
                     size: 100,
                 },
                 {
-                    name: "subForum1",
+                    name: "分论坛1",
                     size: 50,
                 },
                 {
-                    name: "subForum2",
+                    name: "分论坛2",
                     size: 50,
                 },
             ]
@@ -47,7 +47,7 @@ const request = {
                 {
                     username: "成员名",
                     email: "111@mail.com"
-                }
+                },
             ]
         }
     },
