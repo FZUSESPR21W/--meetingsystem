@@ -38,7 +38,7 @@ class Data(object):
     def get_user_role(self, user_id, sub_forum_id):
         with self.db.cursor() as cursor:
             sql = 'SELECT `role_type` FROM `user` WHERE `user_id`=%s AND `sub_forum_id`=%s'
-            cursor.execute(sql, user_id, sub_forum_id)
+            cursor.execute(sql, (user_id, sub_forum_id))
             result = cursor.fetchone()
             cursor.close()
             return result
@@ -58,6 +58,27 @@ class Data(object):
             cursor.execute(sql, (language, user_id))
             self.db.commit()
             cursor.close()
+
+    # 获取论坛议程
+    def get_task(self, forum_id):
+        with self.db.cursor() as cursor:
+            sql = 'SELECT * FROM `task` WHERE id=%s'
+            cursor.execute(sql, (forum_id,))
+            result = cursor.fetchall()
+            cursor.close()
+            return result
+
+    # 获取分论坛消息
+    def get_message(self, forum_id, page):
+        with self.db.cursor() as cursor:
+            if forum_id is None:
+                sql = "SELECT * FROM `task`"
+                cursor.execute(sql)
+            else:
+                sql = "SELECT * FROM `task` WHERE `sub_forum_id`=%s"
+                cursor.execute(sql, forum_id)
+            result = cursor.fetchall()
+            return result
 
 
 if __name__ == "__main__" :
