@@ -29,19 +29,21 @@ def message():
         return
     return
 
-@app.route('/api/user/query/follow',methods="POST")
-def ask_follow():
-    token = request.form.get("token")
-    user_id,msg = validate_token(token)
-    user_id = user_id["user_id"]
-    id = request.form.get("id")
-    return
-
-@app.route('/api/user/forum/list',methods="POST")
+@app.route('/api/user/forum/list',methods="POST")   #curd forum名 issue
 def forum_list():
     token = request.form.get("token")
     user_id,msg = validate_token(token)
     user_id = user_id["user_id"]
+    setx = data.all_forum()
+    keyset = data.forum_list(user_id)
+    rex= []
+    for key in setx:
+        if key in keyset:
+            subset = {
+                "follow":1,
+                "forum":
+                "id":key
+            }
     return
 
 @app.route('/api/user/follow/',methods="POST")
@@ -66,7 +68,11 @@ def register():
     username = request.form.get("username")
     password = request.form.get("password")
     email = request.form.get("email")
-    return
+    data.add_user(language="0",email=email,password=password,username=username)
+    rex = {
+        "error_code":0,
+    }
+    return json.dumps(rex)
 
 @app.route('/api/user/login',methods="POST")
 def login():
@@ -91,11 +97,23 @@ def login():
     }
     return json.dumps(rex)
 
-@app.route('/api/admin/login',methods="POST")
+@app.route('/api/admin/login',methods="POST")     #参数 type
 def login():
     email = request.form.get("email")
     password = request.form.get("password")
-    return
+    result = data.get_admin(email,password)
+    token = create_token(result[0])
+    username = result[4]
+    first = result[5]
+    rex = {
+        "error_code": 0,
+        "data": {
+            "token": token,
+            "username": username,
+            "type": first
+        }
+    }
+    return json.dumps(rex)
 
 @app.route('/api/admin/stastic',methods="POST")
 def static():
@@ -104,12 +122,13 @@ def static():
     user_id = user_id["user_id"]
     return
 
-@app.route('/api/admin/getParticipant',methods="POST")
+@app.route('/api/admin/getParticipant',methods="POST")  #curd
 def getpatica():
     token = request.form.get("token")
     user_id,msg = validate_token(token)
     user_id = user_id["user_id"]
     page = request.form.get("page")
+
     return
 
 @app.route('/api/admin/publish',methods="POST")
