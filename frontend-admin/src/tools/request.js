@@ -1,20 +1,22 @@
-let root = "/"
+let root = "/api/admin/"
 
 const request = {
     // 登入
     login: async (data) => {
+        let url = root + 'login';
         console.log({"get req:": data});
         return {
-            error_code: 200,
+            error_code: 0,
             data: {
                 token: "dhaishduisahfuisahduahsdhasudasuihdu",
                 username: "测试用用户",
-                type: 1,
+                type: 3,
             }
         }
     },
     // 论坛数据
     getStastic: async (data) => {
+        let url = root + 'stastic';
         console.log({"get req:": data});
         return {
             error_code: 0,
@@ -36,6 +38,7 @@ const request = {
     },
     // 成员列表
     getParticipant: async (data) => {
+        let url = root + 'getParticipant';
         console.log({"get req:": data});
         return {
             error_code: 0,
@@ -50,6 +53,7 @@ const request = {
     },
     // 获取论坛列表
     getForumList : async (data) => {
+        let url = root + 'forums';
         console.log({"get req:": data});
         return {
             error_code: 0,
@@ -63,6 +67,7 @@ const request = {
     },
     // 发送通知
     publish: async (data) => {
+        let url = root + 'publish';
         console.log({"get req:": data});
         return {
             error_code: 0,
