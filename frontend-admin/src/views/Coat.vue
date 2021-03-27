@@ -20,12 +20,13 @@
                 </a-menu>
             </a-layout-sider>
             <a-layout>
-                <a-layout-header style="background: #fff; padding: 0">
+                <a-layout-header class="header" style="background: #fff; padding: 0">
                 <a-icon
                     class="trigger"
                     :type="collapsed ? 'menu-unfold' : 'menu-fold'"
                     @click="() => (collapsed = !collapsed)"
                 />
+                <span style="padding-right: 24px">{{username}}</span>
                 </a-layout-header>
                 <a-layout-content :style="{ minHeight: '280px' }" >
                 <router-view></router-view>
@@ -43,6 +44,7 @@ export default {
     data () {
         return {
             collapsed: false,
+            username: "",
         }
     },
     methods: {
@@ -52,6 +54,7 @@ export default {
     },
     mounted() {
         this.$router.push("/center/brief");
+        this.username = localStorage.getItem("username");
     },
 }
 </script>
@@ -88,5 +91,10 @@ export default {
   height: 32px;
   background: #aaaaaa;
   margin: 16px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
 }
 </style>

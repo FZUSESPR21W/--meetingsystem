@@ -5,17 +5,20 @@ const request = {
     login: async (data) => {
         console.log({"get req:": data});
         return {
-            status: 200,
-            token: "dhaishduisahfuisahduahsdhasudasuihdu",
-            username: "测试用用户"
+            error_code: 200,
+            data: {
+                token: "dhaishduisahfuisahduahsdhasudasuihdu",
+                username: "测试用用户",
+                type: 1,
+            }
         }
     },
     // 论坛数据
     getStastic: async (data) => {
         console.log({"get req:": data});
         return {
-            status: 200,
-            stastic: [
+            error_code: 0,
+            data: [
                 {
                     name: "total",
                     size: 100,
@@ -35,11 +38,24 @@ const request = {
     getParticipant: async (data) => {
         console.log({"get req:": data});
         return {
-            status: 200,
-            participant: [
+            error_code: 0,
+            data: [
                 {
                     username: "成员名",
-                    mail: "111@mail.com"
+                    email: "111@mail.com"
+                }
+            ]
+        }
+    },
+    // 获取论坛列表
+    getForumLsit : async (data) => {
+        console.log({"get req:": data});
+        return {
+            error_code: 0,
+            data: [
+                {
+                    name: "分论坛名",
+                    id: "asajigduiashduias"
                 }
             ]
         }
@@ -48,7 +64,7 @@ const request = {
     publish: async (data) => {
         console.log({"get req:": data});
         return {
-            status: 200,
+            error_code: 0,
         }
     },
 }
