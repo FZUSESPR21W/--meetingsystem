@@ -6,6 +6,7 @@
         >
             <a-spin size="large" :spinning="spinning" />
             <a-table 
+                v-if="!spinning"
                 :pagination="pager" 
                 :columns="columns" 
                 :data-source="participants"

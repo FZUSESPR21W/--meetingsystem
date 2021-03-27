@@ -62,6 +62,7 @@ export default {
                     console.log('Received values of form: ', values);
                     request.login(values)
                     .then((res)=>{
+                        console.log(res);
                         if(res.error_code != 0) {
                             // error
                             that.invalid = true;

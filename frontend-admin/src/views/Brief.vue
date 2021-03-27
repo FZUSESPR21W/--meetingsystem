@@ -1,8 +1,8 @@
 <!--  -->
 <template>
     <div class='Brief'>
-        <a-spin size="large" :spinning="spinning" />
         <div class="container">
+            <a-spin size="large" :spinning="spinning" />
             <div class="block" v-for="forum in forums" :key="forum">
                 <a-statistic :title="forum.name" :value="forum.size" />
             </div>
