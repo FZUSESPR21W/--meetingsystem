@@ -1,35 +1,35 @@
+import request from 'umi-request';
+
 const queryFollow = async (id: number, token: string) => {
-  return {
-    error_code: 0,
+  const res = await request.post('/api/user/query/follow', {
     data: {
-      follow: 0,
+      token,
+      id,
     },
-  };
+  });
+  return res;
 };
 
 const getData = async (id: number, page: number, token: string) => {
-  return {
-    error_code: 0,
+  const res = await request.post('/api/user/forum/message', {
     data: {
-      page: 0,
-      total: 10,
-      result: [
-        {
-          id: 1,
-          content: 2,
-          time: 3,
-          chairman: 4,
-          issue: '5455',
-        },
-      ],
+      token,
+      id,
+      page,
     },
-  };
+  });
+  return res;
 };
 
 const follow = async (id: number, follow_key: number, token: string) => {
-  return {
-    error_code: 0,
-  };
+  const res = await request.post('/api/user/follow', {
+    data: {
+      follow_key,
+      token,
+      ids: [id],
+    },
+  });
+  return res;
 };
 
 export { queryFollow, getData, follow };

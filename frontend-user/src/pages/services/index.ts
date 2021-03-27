@@ -1,148 +1,47 @@
 import { dataProps, followItemProps, meetingProps } from '../models';
+import request from 'umi-request';
 
 const getData = async (
   page: number,
   token: number,
 ): Promise<{ error_code: number; data: dataProps }> => {
-  return {
-    error_code: 0,
+  const res = await request.post('/api/user/forum/message', {
     data: {
-      hasMore: true,
-      page: page + 1,
-      total: 1000,
-      pageSize: 10,
-      result: [
-        {
-          id: 1,
-          chairman: 'xxx',
-          content: 'xxxx',
-          issue: 'xxx',
-          time: 0,
-        },
-        {
-          id: 1,
-          chairman: 'xxx',
-          content: 'xxxx',
-          issue: 'xxx',
-          time: 0,
-        },
-        {
-          id: 1,
-          chairman: 'xxx',
-          content: 'xxxx',
-          issue: 'xxx',
-          time: 0,
-        },
-        {
-          id: 1,
-          chairman: 'xxx',
-          content: 'xxxx',
-          issue: 'xxx',
-          time: 0,
-        },
-        {
-          id: 1,
-          chairman: 'xxx',
-          content: 'xxxx',
-          issue: 'xxx',
-          time: 0,
-        },
-        {
-          id: 1,
-          chairman: 'xxx',
-          content: 'xxxx',
-          issue: 'xxx',
-          time: 0,
-        },
-        {
-          id: 1,
-          chairman: 'xxx',
-          content: 'xxxx',
-          issue: 'xxx',
-          time: 0,
-        },
-        {
-          id: 1,
-          chairman: 'xxx',
-          content: 'xxxx',
-          issue: 'xxx',
-          time: 0,
-        },
-        {
-          id: 1,
-          chairman: 'xxx',
-          content: 'xxxx',
-          issue: 'xxx',
-          time: 0,
-        },
-        {
-          id: 1,
-          chairman: 'xxx',
-          content: 'xxxx',
-          issue: 'xxx',
-          time: 0,
-        },
-      ],
+      page,
+      token,
     },
-  };
+  });
+  return res;
 };
 
 const getForum = async (
   token: string,
 ): Promise<{ error_code: number; data: followItemProps[] }> => {
-  return {
-    error_code: 0,
-    data: [
-      {
-        id: 1,
-        follow: 0,
-        forum: 'xxx',
-      },
-      {
-        id: 1,
-        follow: 1,
-        forum: 'xxx',
-      },
-      {
-        id: 1,
-        follow: 1,
-        forum: 'xxx',
-      },
-    ],
-  };
+  const res = await request.post('/api/user/forum/list', {
+    data: {
+      token,
+    },
+  });
+  return res;
 };
 
 const getMetting = async (): Promise<{
   error_code: number;
   data: meetingProps;
 }> => {
-  return {
-    error_code: 0,
-    data: {
-      time: 1000,
-      chairman: 'xxx',
-      submeet: [
-        {
-          time: 0,
-          arrange: 'aaa',
-        },
-        {
-          time: 1,
-          arrange: 'bbb',
-        },
-        {
-          time: 2,
-          arrange: 'ccc',
-        },
-      ],
-    },
-  };
+  const res = await request.get('/api/user/meeting');
+  return res;
 };
 
 const follow = async (id: number, follow_key: number, token: string) => {
-  return {
-    error_code: 0,
-  };
+  const res = await request.post('/api/user/follow', {
+    data: {
+      follow_key,
+      token,
+      ids: [id],
+    },
+  });
+  return res;
 };
 
 export { getData, getMetting, getForum, follow };
