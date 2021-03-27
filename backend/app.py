@@ -16,7 +16,24 @@ def index():
 
 @app.route('/api/user/meeting',methods="GET")
 def message():
-    return
+    forumid = data.get_task(1)
+    key = []
+    for id in forumid:
+        result = data.get_forum(id)
+        subkey = {
+            "time":result[3],
+            "arrange":result[2]
+        }
+        key.append(subkey)
+    rex = {
+        "error_code":0,
+        "data":{
+            "time":"2021-03-27 17:57:47",
+            "chairman":"admin",
+            "submeet":key
+        }
+    }
+    return json.dumps(rex)
 
 @app.route('/api/user/forum/message',methods="POST")
 def message():
@@ -25,7 +42,11 @@ def message():
     user_id = user_id["user_id"]
     page = request.form.get("page")
     id = request.form.get("id")
-    if id is None:
+    if id is None:  #timeline
+        forumlist = data.forum_list(user_id)
+        for id in forumlist:
+            res = data.get_forum(id)
+
         return
     return
 
@@ -97,20 +118,19 @@ def login():
     }
     return json.dumps(rex)
 
-@app.route('/api/admin/login',methods="POST")     #参数 type
+@app.route('/api/admin/login',methods="POST")
 def login():
     email = request.form.get("email")
     password = request.form.get("password")
-    result = data.get_admin(email,password)
+    result,type = data.get_admin(email,password)
     token = create_token(result[0])
     username = result[4]
-    first = result[5]
     rex = {
         "error_code": 0,
         "data": {
             "token": token,
             "username": username,
-            "type": first
+            "type": type
         }
     }
     return json.dumps(rex)
