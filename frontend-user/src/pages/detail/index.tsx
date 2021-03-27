@@ -1,10 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styles from './index.less';
 import { Row, Col, Card, Button } from 'antd';
 import { HeartFilled, HeartOutlined } from '@ant-design/icons';
 import { ThemeList } from '@/components';
+import { history } from 'umi';
 
 const DetailPage = () => {
+  console.log(history.location.state);
+
+  useEffect(() => {
+    
+  });
+
   return (
     <div className={styles.container}>
       <Row>
@@ -19,9 +26,7 @@ const DetailPage = () => {
             </div>
           </Card>
         </Col>
-        <Col span="24">
-          <ThemeList />
-        </Col>
+        <Col span="24">{/* <ThemeList /> */}</Col>
       </Row>
     </div>
   );

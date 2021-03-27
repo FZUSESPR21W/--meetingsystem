@@ -5,7 +5,7 @@ import { ComponentPrefixs } from '@/constants';
 import CircleLetter from '../circleLetter';
 import InfiniteScroll from 'react-infinite-scroller';
 import './index.less';
-import { dataProps, listItemProps } from 'umi';
+import { history, listItemProps } from 'umi';
 
 const setClsPrefix = setClsPrefixHOC(ComponentPrefixs.ThemeList);
 
@@ -28,7 +28,7 @@ interface ThemeListProps {
 
 const ThemeList = (props: ThemeListProps) => {
   const { triggerFetch, data, hasMore } = props;
-  console.log(props)
+  console.log(props);
 
   const [loading, setLoading] = useState(false);
 
@@ -36,6 +36,10 @@ const ThemeList = (props: ThemeListProps) => {
     setLoading(true);
     await triggerFetch();
     setLoading(false);
+  };
+
+  const handleDetailClick = (id: number) => {
+    history.push('/detail', id);
   };
 
   useEffect(() => {
@@ -56,7 +60,10 @@ const ThemeList = (props: ThemeListProps) => {
           size="large"
           dataSource={data}
           renderItem={(item) => (
-            <List.Item key={item.id}>
+            <List.Item
+              key={item.id}
+              onClick={(e) => handleDetailClick(item.id)}
+            >
               <List.Item.Meta
                 avatar={<CircleLetter letter={item.issue} />}
                 description={'时间: ' + item.time}

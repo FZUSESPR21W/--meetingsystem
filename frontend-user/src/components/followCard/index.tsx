@@ -6,6 +6,7 @@ import { HeartOutlined, HeartFilled } from '@ant-design/icons';
 import './index.less';
 import CircleLetter from '../circleLetter';
 import { followItemProps } from '@/pages/models';
+import { history } from 'umi';
 
 const setClsPrefix = setClsPrefixHOC(ComponentPrefixs.FollowCard);
 interface FollowCardProps {
@@ -47,6 +48,10 @@ const FollowCard = (props: FollowCardProps) => {
     return [<HeartFilled onClick={(e) => handleFollowClick(1)} />];
   };
 
+  const handleDetailClick = (id: number) => {
+    history.push('/detail', id);
+  };
+
   return (
     <Card title="分论坛列表" className={setClsPrefix()}>
       <Skeleton avatar title={false} loading={loading} active>
@@ -55,7 +60,11 @@ const FollowCard = (props: FollowCardProps) => {
           dataSource={data}
           renderItem={(item) => {
             return (
-              <List.Item key={item.id} actions={renderActions(item)}>
+              <List.Item
+                key={item.id}
+                actions={renderActions(item)}
+                onClick={(e) => handleDetailClick(item.id)}
+              >
                 <List.Item.Meta
                   avatar={<CircleLetter letter={item.forum} />}
                   title={item.forum}
