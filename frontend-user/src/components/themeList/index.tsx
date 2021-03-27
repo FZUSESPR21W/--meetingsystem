@@ -28,7 +28,7 @@ interface ThemeListProps {
 
 const ThemeList = (props: ThemeListProps) => {
   const { triggerFetch, data, hasMore } = props;
-  console.log(props);
+  console.log('*', props);
 
   const [loading, setLoading] = useState(false);
 
