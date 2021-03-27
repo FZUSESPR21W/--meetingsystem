@@ -4,10 +4,10 @@ import pymysql
 class Data(object):
     def __init__(self):
         self.db = pymysql.connect(host="47.98.152.179",
-                                  user="tempUser",
-                                  password="tempPass123!",
-                                  database="meeting_system",
-                                  cursorclass=pymysql.cursors.DictCursor)
+        user="tempUser",
+        password="tempPass123!",
+        database="meeting_system",
+        cursorclass=pymysql.cursors.DictCursor)
 
     def __del__(self):
         self.db.close()
@@ -27,10 +27,34 @@ class Data(object):
             cursor.close()
             return result
 
+    # 管理员登录
+    def get_admin(self, email, password):
+        with self.db.cursor() as cursor:
+            sql = "SELECT * FROM `user` WHERE `email`=%s AND `password`=%s"
+            cursor.execute(sql, (email, password,))
+            result = cursor.fetchone()
+
+            if result is None:
+                return None
+            roles = self.__get_roles(result['user_id'])
+            cursor.close()
+            for i in roles:
+                if i['role_type'] < 4:
+                    return result
+            return None
+
+    def __get_roles(self, user_id):
+        with self.db.cursor() as cursor:
+            sql = "SELECT `role_type` WHERE `user_id`=%s"
+            cursor.execute(sql, (user_id,))
+            result = cursor.fetchall()
+            cursor.close()
+            return result
+
     def __update_user_status(self, user_id):
         with self.db.cursor() as cursor:
             sql = "UPDATE `user` SET `status`=0 WHERE `id`=%s"
-            cursor.execute(sql, user_id)
+            cursor.execute(sql, (user_id,))
             self.db.commit()
             cursor.close()
 
@@ -38,7 +62,7 @@ class Data(object):
     def get_user_role(self, user_id, sub_forum_id):
         with self.db.cursor() as cursor:
             sql = 'SELECT `role_type` FROM `user` WHERE `user_id`=%s AND `sub_forum_id`=%s'
-            cursor.execute(sql, user_id, sub_forum_id)
+            cursor.execute(sql, (user_id, sub_forum_id,))
             result = cursor.fetchone()
             cursor.close()
             return result
@@ -47,7 +71,7 @@ class Data(object):
     def add_user(self, language, email, password, username):
         with self.db.cursor() as cursor:
             sql = "INSERT INTO `user` (`language`,`email`,`password`,`username`,`status`) VALUES (%s,%s,%s,%s,1)"
-            cursor.execute(sql, (language, email, password, username))
+            cursor.execute(sql, (language, email, password, username,))
             cursor.close()
             self.db.commit()
 
@@ -55,9 +79,44 @@ class Data(object):
     def update_user_language(self, user_id, language):
         with self.db.cursor() as cursor:
             sql = "UPDATE `user` SET `language`=%s WHERE `id`=%s"
-            cursor.execute(sql, (language, user_id))
+            cursor.execute(sql, (language, user_id,))
             self.db.commit()
             cursor.close()
+
+    # 获取论坛议程
+    def get_task(self, forum_id):
+        with self.db.cursor() as cursor:
+            sql = 'SELECT * FROM `task` WHERE id=%s'
+            cursor.execute(sql, (forum_id,))
+            result = cursor.fetchall()
+            cursor.close()
+            return result
+
+    # 获取分论坛消息
+    def get_message(self, forum_id, page):
+        with self.db.cursor() as cursor:
+            limit = 10
+            offset = (page - 1) * limit
+            if forum_id is None:
+                sql = "SELECT * FROM `task` LIMIT %s %s"
+                cursor.execute(sql, (offset, limit,))
+            else:
+                sql = "SELECT * FROM `task` WHERE `sub_forum_id`=%s LIMIT %s %s"
+                cursor.execute(sql, (forum_id, offset, limit,))
+            result = cursor.fetchall()
+            return result
+
+    # 获取分论坛信息
+    def get_forum(self, forum_id):
+        with self.db.cursor() as cursor:
+            if forum_id is None:
+                sql = "SELECT * FROM `sub_forum`"
+                cursor.execute(sql)
+            else:
+                sql = "SELECT * FROM `sub_forum` WHERE `sub_forum_id`=%s"
+                cursor.execute(sql, (forum_id,))
+            result = cursor.fetchall()
+            return result
 
     # 检查是否关注
     def is_followed(self, user_id, sub_forum_id):
@@ -105,6 +164,7 @@ class Data(object):
             cursor.close()
 
 
-if __name__ == "__main__":
+if __name__ == "__main__" :
     db = Data()
-    db.forum_list(1)
+    db.add_user(0, "2475945868@qq.com", "123", "nosae")
+    print(db.get_user("2475945868@qq.com", "123"))
