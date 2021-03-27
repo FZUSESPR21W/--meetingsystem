@@ -29,7 +29,7 @@ const DetailPage = () => {
   };
 
   const handleFollowClick = async (follow: number) => {
-    const value = await dispatch({
+    await dispatch({
       type: `${ModelNameSpaces.Detail}/follow`,
       payload: { id, follow },
     });

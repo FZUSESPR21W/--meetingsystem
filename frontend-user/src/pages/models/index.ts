@@ -73,7 +73,7 @@ export const initialState: IndexModelState = {
   },
   metting: {
     time: 0,
-    chairman: 'xxx',
+    chairman: '',
     submeet: [],
   },
   forum: [],

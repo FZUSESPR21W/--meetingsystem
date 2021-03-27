@@ -1,7 +1,8 @@
+import BASE_URL from '@/constants/base';
 import request from 'umi-request';
 
 const queryFollow = async (id: number, token: string) => {
-  const res = await request.post('/api/user/query/follow', {
+  const res = await request.post(`${BASE_URL}/api/user/query/follow`, {
     data: {
       token,
       id,
@@ -11,7 +12,7 @@ const queryFollow = async (id: number, token: string) => {
 };
 
 const getData = async (id: number, page: number, token: string) => {
-  const res = await request.post('/api/user/forum/message', {
+  const res = await request.post(`${BASE_URL}/api/user/forum/message`, {
     data: {
       token,
       id,
@@ -22,7 +23,7 @@ const getData = async (id: number, page: number, token: string) => {
 };
 
 const follow = async (id: number, follow_key: number, token: string) => {
-  const res = await request.post('/api/user/follow', {
+  const res = await request.post(`${BASE_URL}/api/user/follow`, {
     data: {
       follow_key,
       token,
