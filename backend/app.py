@@ -68,6 +68,23 @@ def static():
     token = request.form.get("token")
     return
 
+@app.route('/api/admin/getParticipant',methods="POST")
+def getpatica():
+    token = request.form.get("token")
+    page = request.form.get("page")
+    return
+
+@app.route('/api/admin/publish',methods="POST")
+def podcast():
+    id = request.form.get("id")
+    content = request.form.get("content")
+    token = request.form.get("token")
+    return
+
+@app.route('/api/admin/forums',methods="POST")
+def forums():
+    token = request.form.get("token")
+    return
 
 
 
