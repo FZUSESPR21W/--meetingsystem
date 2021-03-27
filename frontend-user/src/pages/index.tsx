@@ -19,13 +19,25 @@ export default function IndexPage() {
     });
   };
 
+  const fetchFollowData = () => {
+    dispatch({
+      type: `${ModelNameSpaces.Index}/getForum`,
+    });
+  };
+
+  const fetchForumData = () => {
+    dispatch({
+      type: `${ModelNameSpaces.Index}/getMetting`,
+    });
+  };
+
   return (
     <div className={styles.container}>
       <Row gutter={16}>
         <Col span="8">
-          <ForumCard data={metting}/>
+          <ForumCard data={metting} triggerFetch={fetchForumData} />
           <div className={styles.followCardContainer}>
-            <FollowCard />
+            <FollowCard triggerFetch={fetchFollowData} data={forum} />
           </div>
         </Col>
         <Col span="16">

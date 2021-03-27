@@ -1,90 +1,55 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { setClsPrefixHOC } from '@/utils/setClsPrefixHOC';
 import { ComponentPrefixs } from '@/constants';
-import { Card, Button, List, Skeleton, Avatar } from 'antd';
+import { Card, List, Skeleton, Avatar } from 'antd';
 import { HeartOutlined, HeartFilled } from '@ant-design/icons';
 import './index.less';
-import delay from 'delay';
 import CircleLetter from '../circleLetter';
+import { followItemProps } from '@/pages/models';
 
 const setClsPrefix = setClsPrefixHOC(ComponentPrefixs.FollowCard);
-
-interface FollowCardProps {}
-const fetchData = () => {
-  const list = [];
-  for (let i = 0; i < 3; i += 1) {
-    list.push({
-      loading: false,
-      value: {
-        id: Math.random(),
-        issue: 'xxx',
-        follow: i % 2,
-      },
-    });
-  }
-  return list;
-};
+interface FollowCardProps {
+  triggerFetch: Function;
+  data: followItemProps[];
+}
 
 const FollowCard = (props: FollowCardProps) => {
+  const { data, triggerFetch } = props;
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState<any[]>([...fetchData()]);
 
-  const onLoadMore = async () => {
+  const getData = async () => {
     setLoading(true);
-    const dataTemp = [...data];
-    setData([
-      ...dataTemp,
-      ...[...new Array(3)].map(() => {
-        return { loading: true, value: {} };
-      }),
-    ]);
-    await delay(2000);
-    setData([...dataTemp, ...fetchData()]);
+    await triggerFetch();
     setLoading(false);
   };
 
-  const loadMore = !loading ? (
-    <div
-      style={{
-        textAlign: 'center',
-        marginTop: 12,
-        height: 32,
-        lineHeight: '32px',
-      }}
-    >
-      <Button onClick={onLoadMore}>loading more</Button>
-    </div>
-  ) : null;
+  useEffect(() => {
+    getData();
+  }, []);
 
-  const renderActions = (item) => {
-    if (item.loading) {
-      return;
-    }
-    if (item.value.follow === 0) return [<HeartOutlined />];
+  const renderActions = (item: followItemProps) => {
+    if (item.follow === 0) return [<HeartOutlined />];
     return [<HeartFilled />];
   };
 
   return (
-    <Card title="热门关注列表" className={setClsPrefix()}>
-      <List
-        className="demo-loadmore-list"
-        itemLayout="horizontal"
-        loadMore={loadMore}
-        dataSource={data}
-        renderItem={(item) => {
-          console.log(item);
-          return (
-            <List.Item key={item.value.id} actions={renderActions(item)}>
-              <Skeleton avatar title={false} loading={item.loading} active>
+    <Card title="分论坛列表" className={setClsPrefix()}>
+      <Skeleton avatar title={false} loading={loading} active>
+        <List
+          itemLayout="horizontal"
+          dataSource={data}
+          renderItem={(item) => {
+            return (
+              <List.Item key={item.id} actions={renderActions(item)}>
                 <List.Item.Meta
-                  avatar={<CircleLetter letter={item.value.issue} />}
-                  title={item.value.issue}
+                  avatar={<CircleLetter letter={item.forum} />}
+                  title={item.forum}
                 />
-              </Skeleton>
-            </List.Item>
-          );
-        }}
-      />
+              </List.Item>
+            );
+          }}
+        />
+      </Skeleton>
     </Card>
   );
 };

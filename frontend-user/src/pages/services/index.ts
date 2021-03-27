@@ -1,4 +1,4 @@
-import { dataProps, meetingProps } from 'umi';
+import { dataProps, forumProps, meetingProps } from '../models';
 
 const getData = async (page: number): Promise<dataProps> => {
   return {
@@ -81,6 +81,32 @@ const getData = async (page: number): Promise<dataProps> => {
   };
 };
 
+const getForum = async (page: number): Promise<forumProps> => {
+  return {
+    list: [
+      {
+        id: 1,
+        follow: 0,
+        forum: 'xxx',
+      },
+      {
+        id: 1,
+        follow: 1,
+        forum: 'xxx',
+      },
+      {
+        id: 1,
+        follow: 1,
+        forum: 'xxx',
+      },
+    ],
+    page: page + 1,
+    pageSize: 3,
+    hasMore: true,
+    total: 1000,
+  };
+};
+
 const getMetting = async (): Promise<meetingProps> => {
   return {
     time: 1000,
@@ -102,4 +128,4 @@ const getMetting = async (): Promise<meetingProps> => {
   };
 };
 
-export { getData, getMetting };
+export { getData, getMetting, getForum };

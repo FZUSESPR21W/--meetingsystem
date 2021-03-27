@@ -57,7 +57,6 @@ export interface IndexModelType {
     saveData: ImmerReducer<IndexModelState>;
     saveForum: ImmerReducer<IndexModelState>;
     saveMetting: ImmerReducer<IndexModelState>;
-    changeForumPage: ImmerReducer<IndexModelState>;
     changeDataPage: ImmerReducer<IndexModelState>;
   };
 }
@@ -83,7 +82,7 @@ const IndexModel: IndexModelType = {
   state: initialState,
   effects: {
     *getData({ payload }, { call, put, select }) {
-      const { page, list } = yield select((store: RootStore) => {
+      const { page } = yield select((store: RootStore) => {
         const { [ModelNameSpaces.Index]: indexModal } = store;
         const { data } = indexModal;
         return data;
@@ -99,10 +98,19 @@ const IndexModel: IndexModelType = {
       });
     },
     *getForum({ payload }, { call, put, select }) {
-      const { forum } = yield select((store: RootStore) => {
+      const { page } = yield select((store: RootStore) => {
         const { [ModelNameSpaces.Index]: indexModal } = store;
         const { forum } = indexModal;
         return forum;
+      });
+      yield put({
+        type: `changeForumPage`,
+        payload: page + 1,
+      });
+      const res = yield call(IndexService.getForum, page);
+      yield put({
+        type: `saveForum`,
+        payload: res,
       });
     },
     *getMetting({ payload }, { call, put }) {
@@ -125,12 +133,12 @@ const IndexModel: IndexModelType = {
       };
     },
     saveForum(state, action) {
-      console.log(action);
+      const { list, page, pageSize, total } = action.payload;
+      state.forum = [...state.forum, ...list];
     },
     saveMetting(state, action) {
-     state.metting = action.payload;
+      state.metting = action.payload;
     },
-    changeForumPage(state, action) {},
     changeDataPage(state, action) {
       state.data.page = action.payload;
     },

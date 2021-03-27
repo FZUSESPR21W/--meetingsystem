@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { setClsPrefixHOC } from '@/utils/setClsPrefixHOC';
 import { ComponentPrefixs } from '@/constants';
 import { Timeline, Card, Descriptions } from 'antd';
@@ -9,11 +9,15 @@ const setClsPrefix = setClsPrefixHOC(ComponentPrefixs.ForumCard);
 
 interface ForumCardProps {
   data: meetingProps;
+  triggerFetch: Function;
 }
 
 const ForumCard = (props: ForumCardProps) => {
-  const { data } = props;
+  const { data, triggerFetch } = props;
   const { chairman, time, submeet } = data;
+  useEffect(() => {
+    triggerFetch();
+  }, []);
   return (
     <Card title="本站第一次会议">
       <Descriptions title={null}>
