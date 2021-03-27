@@ -49,7 +49,7 @@ const request = {
         }
     },
     // 获取论坛列表
-    getForumLsit : async (data) => {
+    getForumList : async (data) => {
         console.log({"get req:": data});
         return {
             error_code: 0,
