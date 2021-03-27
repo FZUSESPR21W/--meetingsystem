@@ -4,10 +4,10 @@ import pymysql
 class Data(object):
     def __init__(self):
         self.db = pymysql.connect(host="47.98.152.179",
-                                  user="tempUser",
-                                  password="tempPass123!",
-                                  database="meeting_system",
-                                  cursorclass=pymysql.cursors.DictCursor)
+        user="tempUser",
+        password="tempPass123!",
+        database="meeting_system",
+        cursorclass=pymysql.cursors.DictCursor)
 
     def __del__(self):
         self.db.close()
@@ -188,6 +188,14 @@ class Data(object):
             result = c.fetchall()
 
             return result, total
+    # 根据秘书id获取对应分论坛关注者
+    def get_participant(self, user_id):
+        with self.db.cursor() as cursor:
+            sql = "SELECT `u`.`username`,`u`.`email` FROM `user` AS u JOIN `role` AS r ON `u`.`user_id` = `r`.`sub_forum_id` WHERE `r`.`role_type`=3 AND`r`.`user_id`=%s"
+            cursor.execute(sql, user_id)
+            res = self.db.commit()
+            cursor.close()
+            return res
 
 
 if __name__ == "__main__":
