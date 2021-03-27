@@ -7,7 +7,7 @@
                     <h1>会议在线管理后台</h1>
                 </div>
                 <a-menu mode="inline" :default-selected-keys="['brief']" @click="route">
-                <a-menu-item key="brief">
+                <a-menu-item key="brief" v-if="!isSecretary()">
                     <a-icon type="global" />
                     <span>会议概况</span>
                 </a-menu-item>
