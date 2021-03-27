@@ -40,7 +40,7 @@ class Data(object):
             cursor.close()
             for i in roles:
                 if i['role_type'] < 4:
-                    return result
+                    return result, i['role_type']
             return None
 
     def __get_roles(self, user_id):
@@ -92,19 +92,24 @@ class Data(object):
             cursor.close()
             return result
 
-    # 获取分论坛消息
     def get_message(self, forum_id, page):
         with self.db.cursor() as cursor:
             limit = 10
             offset = (page - 1) * limit
             if forum_id is None:
-                sql = "SELECT * FROM `task` LIMIT %s %s"
+                sql = "SELECT * FROM `message` LIMIT %s %s"
                 cursor.execute(sql, (offset, limit,))
             else:
-                sql = "SELECT * FROM `task` WHERE `sub_forum_id`=%s LIMIT %s %s"
+                sql = "SELECT * FROM `message` WHERE `sub_forum_id`=%s LIMIT %s %s"
                 cursor.execute(sql, (forum_id, offset, limit,))
             result = cursor.fetchall()
-            return result
+
+            sql2 = "SELECT COUNT(*) AS total FROM `message`"
+            cursor.execute(sql2)
+            total = cursor.fetchone()['total']
+
+            cursor.close()
+            return result, total
 
     # 获取分论坛信息
     def get_forum(self, forum_id):
@@ -113,7 +118,9 @@ class Data(object):
                 sql = "SELECT * FROM `sub_forum`"
                 cursor.execute(sql)
             else:
-                sql = "SELECT * FROM `sub_forum` WHERE `sub_forum_id`=%s"
+                sql = "SELECT s.`sub_forum_id` AS `id`, s.`issue` AS `issue`, s.`start_time` AS `time`, " \
+                      "u.`username` AS `chairman` FROM `sub_forum` s WHERE s.`sub_forum_id`=%s " \
+                      "INNER JOIN `user` u ON u.`user_id` = s.`chairman_id`"
                 cursor.execute(sql, (forum_id,))
             result = cursor.fetchall()
             return result
@@ -133,17 +140,18 @@ class Data(object):
     # 用户关注的分论坛列表
     def forum_list(self, user_id):
         with self.db.cursor() as cursor:
-            sql = "SELECT `r`.`sub_forum_id`,`s`.`issue` FROM `role` AS r JOIN `sub_forum` AS s ON `r`.`sub_forum_id`=`s`.`sub_forum_id` WHERE `r`.`user_id`=%s"
+            sql = "SELECT `r`.`sub_forum_id`,`s`.`issue` FROM role AS r JOIN sub_forum AS s ON `r`.`sub_forum_id`=`s`.`sub_forum_id` WHERE `r`.`user_id`=%s"
             cursor.execute(sql, user_id)
             sub_forum_id = self.db.commit()
             cursor.close()
+            print(sub_forum_id)
             return sub_forum_id
 
-    # 所有分论坛
+    # 所有分论坛    change
     def all_forum(self):
         with self.db.cursor() as cursor:
-            sql = "SELECT `sub_forum_id` FROM `sub_forum` WHERE `sub_forum_id`!=%s"
-            cursor.execute(sql, 1)
+            sql = "SELECT DISTINCT `r`.`sub_forum_id`,`s`.`issue` FROM role AS r JOIN sub_forum AS s ON `r`.`sub_forum_id`=`s`.`sub_forum_id`"
+            cursor.execute(sql)
             sub_forum_id = self.db.commit()
             cursor.close()
             return sub_forum_id
@@ -162,6 +170,46 @@ class Data(object):
             cursor.execute(sql, (user_id, sub_forum_id))
             cursor.close()
 
+        # 获取所管理的论坛
+
+    def get_forum_charge(self, admin_id):
+        with self.db.cursor() as cursor:
+            sql = "SELECT sub_forum_id FROM role WHERE user_id=%s"
+            cursor.execute(sql, (admin_id))
+            forum_id = self.db.commit()
+            sql = "SELECT issue FROM sub_forum WHERE sub_forum_id=%s"
+            cursor.execute(sql, (forum_id))
+            issue = self.db.commit()
+            cursor.close()
+            result = [{
+                "id": forum_id,
+                "forum": issue
+            }]
+            return result
+
+        # 发布消息
+
+    def publish_message(self, id, content, admin_id):
+        with self.db.cursor() as cursor:
+            sql = "INSERT INTO `message` (`sub_forum_id`,`content`) VALUES (%s,%s)"
+            cursor.execute(sql, (id, content))
+            self.db.commit()
+            cursor.close()
+            return True
+
+    # 获取论坛统计数据
+    def get_statistics(self):
+        with self.db.cursor() as c:
+            sql = "SELECT COUNT(*) AS `total` FROM `user`"
+            c.execute(sql)
+            total = c.fetchone()['total']
+
+            sql2 = "SELECT COUNT(user_id) AS `size`, `issue` AS `name` FROM `role` GROUP BY `sub_forum_id`"
+            c.execute(sql2)
+            result = c.fetchall()
+
+            return result, total
+
     # 根据秘书id获取对应分论坛关注者
     def get_participant(self, user_id):
         with self.db.cursor() as cursor:
@@ -171,38 +219,11 @@ class Data(object):
             cursor.close()
             return res
 
-    #获取所管理的论坛
-    def get_forum_charge(self,admin_id):
-        with self.db.cursor() as cursor:
-            sql = "SELECT sub_forum_id FROM role WHERE user_id=%s"
-            cursor.execute(sql, (admin_id))
-            forum_id = self.db.commit()
-            sql = "SELECT issue FROM sub_forum WHERE sub_forum_id=%s"
-            cursor.execute(sql,(forum_id))
-            issue = self.db.commit()
-            cursor.close()
-            result = [{
-                "id":forum_id,
-                "forum":issue
-            }]
-            return result
-
-    #发布消息
-    def publish_message(self,id,content,admin_id):
-        with self.db.cursor() as cursor:
-            sql = "INSERT INTO `message` (`sub_forum_id`,`content`) VALUES (%s,%s)"
-            cursor.execute(sql, (id,content))
-            self.db.commit()
-            cursor.close()
-            return True
-
 if __name__ == "__main__" :
+
     db = Data()
-    print(db.get_participant(5))
-    # db.add_user(0, "2475945868@qq.com", "123", "nosae")
+
+    db.add_user(0, "2475945868@qq.com", "123", "nosae")
     print(db.get_user("2475945868@qq.com", "123"))
-
-
-
 
 
