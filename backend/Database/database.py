@@ -40,7 +40,7 @@ class Data(object):
             cursor.close()
             for i in roles:
                 if i['role_type'] < 4:
-                    return result
+                    return result, i['role_type']
             return None
 
     def __get_roles(self, user_id):
@@ -98,13 +98,19 @@ class Data(object):
             limit = 10
             offset = (page - 1) * limit
             if forum_id is None:
-                sql = "SELECT * FROM `task` LIMIT %s %s"
+                sql = "SELECT * FROM `message` LIMIT %s %s"
                 cursor.execute(sql, (offset, limit,))
             else:
-                sql = "SELECT * FROM `task` WHERE `sub_forum_id`=%s LIMIT %s %s"
+                sql = "SELECT * FROM `message` WHERE `sub_forum_id`=%s LIMIT %s %s"
                 cursor.execute(sql, (forum_id, offset, limit,))
             result = cursor.fetchall()
-            return result
+
+            sql2 = "SELECT COUNT(*) AS total FROM `message`"
+            cursor.execute(sql2)
+            total = cursor.fetchone()['total']
+
+            cursor.close()
+            return result, total
 
     # 获取分论坛信息
     def get_forum(self, forum_id):
@@ -113,7 +119,9 @@ class Data(object):
                 sql = "SELECT * FROM `sub_forum`"
                 cursor.execute(sql)
             else:
-                sql = "SELECT * FROM `sub_forum` WHERE `sub_forum_id`=%s"
+                sql = "SELECT s.`sub_forum_id` AS `id`, s.`issue`, s.`start_time` AS `time`, " \
+                      "u.`username` AS `chairman` FROM `sub_forum` s " \
+                      "INNER JOIN `user` u ON u.`user_id` = s.`chairman_id`"
                 cursor.execute(sql, (forum_id,))
             result = cursor.fetchall()
             return result
@@ -165,6 +173,5 @@ class Data(object):
 
 
 if __name__ == "__main__" :
+
     db = Data()
-    db.add_user(0, "2475945868@qq.com", "123", "nosae")
-    print(db.get_user("2475945868@qq.com", "123"))
