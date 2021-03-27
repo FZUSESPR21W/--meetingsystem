@@ -4,10 +4,10 @@ import pymysql
 class Data(object):
     def __init__(self):
         self.db = pymysql.connect(host="47.98.152.179",
-        user="tempUser",
-        password="tempPass123!",
-        database="meeting_system",
-        cursorclass=pymysql.cursors.DictCursor)
+                                  user="tempUser",
+                                  password="tempPass123!",
+                                  database="meeting_system",
+                                  cursorclass=pymysql.cursors.DictCursor)
 
     def __del__(self):
         self.db.close()
@@ -59,8 +59,52 @@ class Data(object):
             self.db.commit()
             cursor.close()
 
+    # 检查是否关注
+    def is_followed(self, user_id, sub_forum_id):
+        with self.db.cursor() as cursor:
+            sql = "SELECT `role_id` FROM `role` WHERE `sub_forum_id`=%s AND `user_id`=%s"
+            cursor.execute(sql, (sub_forum_id, user_id))
+            role_id = self.db.commit()
+            cursor.close()
+            if role_id is None:
+                return False
+            else:
+                return True
 
-if __name__ == "__main__" :
+    # 用户关注的分论坛列表
+    def forum_list(self, user_id):
+        with self.db.cursor() as cursor:
+            sql = "SELECT `sub_forum_id` FROM `role` WHERE `user_id`=%s"
+            cursor.execute(sql, (user_id))
+            sub_forum_id = self.db.commit()
+            cursor.close()
+            print(sub_forum_id)
+            return sub_forum_id
+
+    # 所有分论坛
+    def all_forum(self):
+        with self.db.cursor() as cursor:
+            sql = "SELECT `sub_forum_id` FROM `sub_forum` WHERE `sub_forum_id`!=%s"
+            cursor.execute(sql, 1)
+            sub_forum_id = self.db.commit()
+            cursor.close()
+            return sub_forum_id
+
+    # 关注
+    def like(self, user_id, sub_forum_id):
+        with self.db.cursor() as cursor:
+            sql = "INSERT INTO `role` (`sub_forum_id`,`role_type`,`user_id`) VALUES (%s,%s,%s)"
+            cursor.execute(sql, (sub_forum_id, 4, user_id))
+            cursor.close()
+
+    # 取关
+    def is_like(self, user_id, sub_forum_id):
+        with self.db.cursor() as cursor:
+            sql = "DELETE FROM `role` WHERE `user_id`=%s AND `sub_forum_id`=%s"
+            cursor.execute(sql, (user_id, sub_forum_id))
+            cursor.close()
+
+
+if __name__ == "__main__":
     db = Data()
-    db.add_user(0, "2475945868@qq.com", "123", "nosae")
-    print(db.get_user("2475945868@qq.com", "123"))
+    db.forum_list(1)
