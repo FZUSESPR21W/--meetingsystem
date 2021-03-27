@@ -44,11 +44,51 @@ def message():
     id = request.form.get("id")
     if id is None:  #timeline
         forumlist = data.forum_list(user_id)
-        for id in forumlist:
-            res = data.get_forum(id)
-
-        return
-    return
+        res = []
+        total = 0
+        for key in forumlist:
+            mess,subt = data.get_message(key["sub_forum_id"],page)
+            total += subt
+            index = data.get_forum(key["sub_forum_id"])
+            for me in mess:
+                subres = {
+                    "id":key["sub_forum_id"],
+                    "content":me["content"],
+                    "time":me["time"],
+                    "chairman":index["chairman"],
+                    "issue":index["issue"]
+                }
+                res.append(subres)
+        resx = {
+            "error_code":0,
+            "data":{
+                "page":page,
+                "total":total,
+                "result":res
+            }
+        }
+        return json.dumps(resx)
+    res = []
+    result,total = data.get_message(id,page)               #详情页
+    index = data.get_forum(id)
+    for rek in result:
+        subres = {
+            "id": id,
+            "content": rek["content"],
+            "time": rek["time"],
+            "chairman": index["chairman"],
+            "issue": index["issue"]
+        }
+        res.append(subres)
+    resx = {
+        "error_code": 0,
+        "data": {
+            "page": page,
+            "total": total,
+            "result": res
+        }
+    }
+    return json.dumps(resx)
 
 @app.route('/api/user/forum/list',methods="POST")   #curd forum名 issue
 def forum_list():
@@ -59,13 +99,29 @@ def forum_list():
     keyset = data.forum_list(user_id)
     rex= []
     for key in setx:
-        if key in keyset:
+        flag = 0
+        for subgu in keyset:
+            if key[0] == subgu[0]:
+                flag = 1
+        if flag == 0:
             subset = {
-                "follow":1,
-                "forum":
-                "id":key
+                "follow":flag,
+                "forum":key[1],
+                "id":key[0]
             }
-    return
+            rex.append(subset)
+        else:
+            subset = {
+                "follow":flag,
+                "forum":key[1],
+                "id":key[0]
+            }
+            rex.append(subset)
+    result = {
+        "error_code":0,
+        "data":rex
+    }
+    return json.dumps(result)
 
 @app.route('/api/user/follow/',methods="POST")
 def follow():
@@ -140,16 +196,43 @@ def static():
     token = request.form.get("token")
     user_id,msg = validate_token(token)
     user_id = user_id["user_id"]
-    return
+    result,total = data.get_statistics()
+    res = []
+    rex = {
+        "name":"total",
+        "size":total
+    }
+    res.append(rex)
+    for re in result:
+        rex = {
+            "name":re["name"],
+            "size":re["size"]
+        }
+        res.append(rex)
+    resultx = {
+        "error_code":0,
+        "data":res
+    }
+    return json.dumps(resultx)
 
 @app.route('/api/admin/getParticipant',methods="POST")  #curd
 def getpatica():
     token = request.form.get("token")
     user_id,msg = validate_token(token)
     user_id = user_id["user_id"]
-    page = request.form.get("page")
-
-    return
+    result = data.get_participant(user_id)
+    res = []
+    for re in result:
+        da = {
+            "username":re["username"],
+            "email":re["email"]
+        }
+        res.append(da)
+    resultx = {
+        "error_code":0,
+        "data":res
+    }
+    return json.dumps(res)
 
 @app.route('/api/admin/publish',methods="POST")
 def podcast():
@@ -158,14 +241,23 @@ def podcast():
     token = request.form.get("token")
     user_id,msg = validate_token(token)
     user_id = user_id["user_id"]
-    return
+    data.publish_message(id,content,user_id)
+    rex = {
+        "error_code":0
+    }
+    return json.dumps(rex)
 
 @app.route('/api/admin/forums',methods="POST")
 def forums():
     token = request.form.get("token")
     user_id,msg = validate_token(token)
     user_id = user_id["user_id"]
-    return
+    result = data.get_forum_charge(user_id)
+    res = {
+        "error_code":0,
+        "data":result
+    }
+    return json.dumps(res)
 
 @app.route('/api/user/query/follow',methods="POST")
 def queryf():

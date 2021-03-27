@@ -172,6 +172,46 @@ class Data(object):
             self.db.commit()
             cursor.close()
 
+        # 获取所管理的论坛
+
+    def get_forum_charge(self, admin_id):
+        with self.db.cursor() as cursor:
+            sql = "SELECT sub_forum_id FROM role WHERE user_id=%s"
+            cursor.execute(sql, (admin_id))
+            forum_id = self.db.commit()
+            sql = "SELECT issue FROM sub_forum WHERE sub_forum_id=%s"
+            cursor.execute(sql, (forum_id))
+            issue = self.db.commit()
+            cursor.close()
+            result = [{
+                "id": forum_id,
+                "forum": issue
+            }]
+            return result
+
+        # 发布消息
+
+    def publish_message(self, id, content, admin_id):
+        with self.db.cursor() as cursor:
+            sql = "INSERT INTO `message` (`sub_forum_id`,`content`) VALUES (%s,%s)"
+            cursor.execute(sql, (id, content))
+            self.db.commit()
+            cursor.close()
+            return True
+
+    # 获取论坛统计数据
+    def get_statistics(self):
+        with self.db.cursor() as c:
+            sql = "SELECT COUNT(*) AS `total` FROM `user`"
+            c.execute(sql)
+            total = c.fetchone()['total']
+
+            sql2 = "SELECT COUNT(user_id) AS `size`, `issue` AS `name` FROM `role` GROUP BY `sub_forum_id`"
+            c.execute(sql2)
+            result = c.fetchall()
+
+            return result, total
+
     # 获取论坛统计数据
     def get_statistics(self):
         with self.db.cursor() as c:
