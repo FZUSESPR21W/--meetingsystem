@@ -30,13 +30,15 @@ export interface dataProps {
   hasMore: boolean;
 }
 
+export interface meetingProps {
+  time: number;
+  chairman: string;
+  submeet: subMeetItemProps[];
+}
+
 export interface IndexModelState {
   data: dataProps;
-  metting: {
-    time: number;
-    chairman: string;
-    submeet: subMeetItemProps[];
-  };
+  metting: meetingProps;
   forum: followItemProps[];
 }
 
@@ -82,9 +84,9 @@ const IndexModel: IndexModelType = {
   effects: {
     *getData({ payload }, { call, put, select }) {
       const { page, list } = yield select((store: RootStore) => {
-        const { [ModelNameSpaces.Index]: indexModal} = store;
-        const { data } = indexModal
-        return data
+        const { [ModelNameSpaces.Index]: indexModal } = store;
+        const { data } = indexModal;
+        return data;
       });
       yield put({
         type: `changeDataPage`,
@@ -93,14 +95,22 @@ const IndexModel: IndexModelType = {
       const res = yield call(IndexService.getData, page);
       yield put({
         type: `saveData`,
-        payload: res
-      })
+        payload: res,
+      });
     },
-    *getForum({ payload }, { call, put }) {
-      console.log(payload);
+    *getForum({ payload }, { call, put, select }) {
+      const { forum } = yield select((store: RootStore) => {
+        const { [ModelNameSpaces.Index]: indexModal } = store;
+        const { forum } = indexModal;
+        return forum;
+      });
     },
     *getMetting({ payload }, { call, put }) {
-      console.log(payload);
+      const res = yield call(IndexService.getMetting);
+      yield put({
+        type: `saveMetting`,
+        payload: res,
+      });
     },
   },
   reducers: {
@@ -112,14 +122,13 @@ const IndexModel: IndexModelType = {
         pageSize,
         total,
         hasMore: true,
-      }
-
+      };
     },
     saveForum(state, action) {
       console.log(action);
     },
     saveMetting(state, action) {
-      console.log(action);
+     state.metting = action.payload;
     },
     changeForumPage(state, action) {},
     changeDataPage(state, action) {

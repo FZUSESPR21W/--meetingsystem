@@ -23,7 +23,7 @@ export default function IndexPage() {
     <div className={styles.container}>
       <Row gutter={16}>
         <Col span="8">
-          <ForumCard />
+          <ForumCard data={metting}/>
           <div className={styles.followCardContainer}>
             <FollowCard />
           </div>

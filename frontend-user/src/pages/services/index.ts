@@ -1,4 +1,4 @@
-import { dataProps } from 'umi';
+import { dataProps, meetingProps } from 'umi';
 
 const getData = async (page: number): Promise<dataProps> => {
   return {
@@ -81,4 +81,25 @@ const getData = async (page: number): Promise<dataProps> => {
   };
 };
 
-export { getData };
+const getMetting = async (): Promise<meetingProps> => {
+  return {
+    time: 1000,
+    chairman: 'xxx',
+    submeet: [
+      {
+        time: 0,
+        arrange: 'aaa',
+      },
+      {
+        time: 1,
+        arrange: 'bbb',
+      },
+      {
+        time: 2,
+        arrange: 'ccc',
+      },
+    ],
+  };
+};
+
+export { getData, getMetting };
