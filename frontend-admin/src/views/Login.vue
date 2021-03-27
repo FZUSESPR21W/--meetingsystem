@@ -7,10 +7,11 @@
             class="login-form"
             @submit="submitLogin"
         >
+            <a-alert type="error" message="用户名或密码错误" banner v-if="invalid" />
             <a-form-item>
             <a-input
                 v-decorator="[
-                'userName',
+                'email',
                 { rules: [{ required: true, message: '请输入邮箱' }] },
                 ]"
                 placeholder="邮箱"
@@ -32,7 +33,7 @@
             </a-form-item>
             <a-form-item>
             <a-button type="primary" html-type="submit" class="login-form-button">
-                Log in
+                登 入
             </a-button>
             </a-form-item>
         </a-form>
@@ -41,20 +42,37 @@
 
 <script>
 
+import request from '../tools/request'
+
 export default {
     name: 'Login',
     components: {},
     data () {
         return {
-
+            invalid: false,
         }
     },
     methods: {
         submitLogin(e) {
             e.preventDefault();
+            let that = this;
+            that.invalid = false;
             this.form.validateFields((err, values) => {
                 if (!err) {
-                console.log('Received values of form: ', values);
+                    console.log('Received values of form: ', values);
+                    request.login(values)
+                    .then((res)=>{
+                        if(res.error_code != 0) {
+                            // error
+                            that.invalid = true;
+                        }
+                        else {
+                            localStorage.setItem("token", res.data.token);
+                            localStorage.setItem("username", res.data.username);
+                            localStorage.setItem("type", res.data.type);
+                            that.$router.push("/center/brief");
+                        }
+                    })
                 }
             });
         },
