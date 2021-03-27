@@ -51,6 +51,25 @@ def register():
     email = request.form.get("email")
     return
 
+@app.route('/api/user/login',methods="POST")
+def login():
+    email = request.form.get("email")
+    password = request.form.get("password")
+    return
+
+@app.route('/api/admin/login',methods="POST")
+def login():
+    email = request.form.get("email")
+    password = request.form.get("password")
+    return
+
+@app.route('/api/admin/stastic',methods="POST")
+def static():
+    token = request.form.get("token")
+    return
+
+
+
 
 
 
