@@ -1,8 +1,9 @@
 import { Effect, ImmerReducer } from 'umi';
-import { ModelNameSpaces } from '@/types';
+import { ModelNameSpaces, RootStore } from '@/types';
+import * as IndexService from '../services';
 
 export interface listItemProps {
-  id: string;
+  id: number;
   content: string;
   time: number;
   chairman: string;
@@ -20,13 +21,17 @@ export interface followItemProps {
   id: number;
 }
 
+export interface dataProps {
+  list: listItemProps[];
+  page: number;
+  pageSize: 10;
+  total: number;
+  /** 前端附带 */
+  hasMore: boolean;
+}
+
 export interface IndexModelState {
-  data: {
-    list: listItemProps[];
-    page: number;
-    pageSize: 10;
-    total: number;
-  };
+  data: dataProps;
   metting: {
     time: number;
     chairman: string;
@@ -61,6 +66,7 @@ export const initialState: IndexModelState = {
     page: 0,
     pageSize: 10,
     total: 21,
+    hasMore: true,
   },
   metting: {
     time: 0,
@@ -74,8 +80,21 @@ const IndexModel: IndexModelType = {
   namespace: ModelNameSpaces.Index,
   state: initialState,
   effects: {
-    *getData({ payload }, { call, put }) {
-      console.log(payload);
+    *getData({ payload }, { call, put, select }) {
+      const { page, list } = yield select((store: RootStore) => {
+        const { [ModelNameSpaces.Index]: indexModal} = store;
+        const { data } = indexModal
+        return data
+      });
+      yield put({
+        type: `changeDataPage`,
+        payload: page + 1,
+      });
+      const res = yield call(IndexService.getData, page);
+      yield put({
+        type: `saveData`,
+        payload: res
+      })
     },
     *getForum({ payload }, { call, put }) {
       console.log(payload);
@@ -86,7 +105,15 @@ const IndexModel: IndexModelType = {
   },
   reducers: {
     saveData(state, action) {
-      console.log(action);
+      const { list, page, pageSize, total } = action.payload;
+      state.data = {
+        list: [...state.data.list, ...list],
+        page,
+        pageSize,
+        total,
+        hasMore: true,
+      }
+
     },
     saveForum(state, action) {
       console.log(action);
@@ -95,7 +122,9 @@ const IndexModel: IndexModelType = {
       console.log(action);
     },
     changeForumPage(state, action) {},
-    changeDataPage(state, action) {},
+    changeDataPage(state, action) {
+      state.data.page = action.payload;
+    },
   },
 };
 

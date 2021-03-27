@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { List, Spin, message, Card } from 'antd';
 import { setClsPrefixHOC } from '@/utils/setClsPrefixHOC';
 import { ComponentPrefixs } from '@/constants';
 import CircleLetter from '../circleLetter';
 import InfiniteScroll from 'react-infinite-scroller';
 import './index.less';
+import { dataProps, listItemProps } from 'umi';
 
 const setClsPrefix = setClsPrefixHOC(ComponentPrefixs.ThemeList);
 
@@ -19,36 +20,27 @@ for (let i = 0; i < 10; i++) {
   });
 }
 
-const ThemeList = () => {
-  const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [data, setData] = useState(list);
+interface ThemeListProps {
+  triggerFetch: Function;
+  data: listItemProps[];
+  hasMore: boolean;
+}
 
-  const fetchData = () => {
-    const list: any = [];
-    for (let i = 0; i < 10; i++) {
-      list.push({
-        id: Math.random(),
-        issue: 'Ant Design',
-        content:
-          'We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently.',
-        chairman: '2020/1/0',
-      });
-    }
-    return list;
-  };
+const ThemeList = (props: ThemeListProps) => {
+  const { triggerFetch, data, hasMore } = props;
+  console.log(props)
+
+  const [loading, setLoading] = useState(false);
 
   const handleInfiniteOnLoad = async () => {
     setLoading(true);
-    if (data.length >= 30) {
-      message.info('没有更多的消息了');
-      setHasMore(false);
-      setLoading(false);
-      return;
-    }
-    setData([...data, ...fetchData()]);
+    await triggerFetch();
     setLoading(false);
   };
+
+  useEffect(() => {
+    handleInfiniteOnLoad();
+  }, []);
 
   return (
     <Card title="消息列表">
@@ -57,7 +49,6 @@ const ThemeList = () => {
         pageStart={0}
         loadMore={handleInfiniteOnLoad}
         hasMore={hasMore && !loading}
-        loader={<Spin />}
       >
         <List
           className={setClsPrefix()}
@@ -67,8 +58,8 @@ const ThemeList = () => {
           renderItem={(item) => (
             <List.Item key={item.id}>
               <List.Item.Meta
-                avatar={<CircleLetter letter="xxx" />}
-                description={'时间: ' + item.chairman}
+                avatar={<CircleLetter letter={item.issue} />}
+                description={'时间: ' + item.time}
                 title={'#' + item.issue}
               />
               {item.content}
