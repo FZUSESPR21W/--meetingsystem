@@ -10,8 +10,8 @@ def send_mail(content, receiver):
     ret = True
     try:
         msg = MIMEText(content, 'plain', 'utf-8')
-        msg['From'] = formataddr(['FromRunoob', sender])
-        msg['To'] = formataddr(["FK", receiver])
+        msg['From'] = formataddr(['会议系统', sender])
+        msg['To'] = formataddr(["用户", receiver])
         msg['Subject'] = "会议系统账号注册"
 
         server = smtplib.SMTP_SSL("smtp.163.com", 465)
