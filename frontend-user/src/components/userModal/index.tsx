@@ -38,24 +38,25 @@ const UserModal = ({
   const onLogin = async (values: any) => {
     setLoginLoading(true);
     const isOk = await login(values);
-    await delay(2000);
     setLoginLoading(false);
-    console.log(isOk);
     if (isOk) {
       message.info('登录成功');
       setVisible(false);
+    } else {
+      message.error('邮箱或密码错误');
     }
   };
 
   const onRegister = async (values: any) => {
     setRegisterLoading(true);
-    const { email, password } = values;
-    const isOk = await register({ email, password });
-    await delay(2000);
+    const { email, password, username } = values;
+    const isOk = await register({ email, password, username });
     setRegisterLoading(false);
     if (isOk) {
       message.info('注册成功');
       onLogin({ email, password });
+    } else {
+      message.error('注册失败');
     }
   };
 
@@ -114,6 +115,19 @@ const UserModal = ({
             {
               type: 'email',
               message: '请输入一个合法的邮箱',
+            },
+          ]}
+          hasFeedback
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          name="username"
+          label="用户名"
+          rules={[
+            {
+              required: true,
+              message: '请输入用户名',
             },
           ]}
           hasFeedback

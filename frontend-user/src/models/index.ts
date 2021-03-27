@@ -49,8 +49,8 @@ const UserModel: UserModelType = {
       return false;
     },
     *register({ payload }, { call, put, select }) {
-      const { email, password } = payload;
-      const res = yield call(UserService.register, email, password);
+      const { email, password, username } = payload;
+      const res = yield call(UserService.register, email, password, username);
       const { error_code } = res;
       if (error_code === 0) {
         return true;

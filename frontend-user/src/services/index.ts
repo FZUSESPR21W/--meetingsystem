@@ -7,22 +7,15 @@ const login = async (email: string, password: string) => {
       password,
     },
   });
-  console.log(res);
-  return {
-    error_code: 0,
-    data: {
-      token: null,
-      username: 'xxx',
-      first: 0,
-    },
-  };
+  return res;
 };
 
-const register = async (email: string, password: string) => {
+const register = async (email: string, password: string, username: string) => {
   const res = await request.post('/api/user/register', {
     data: {
       email,
       password,
+      username,
     },
   });
   console.log(res);

@@ -15,14 +15,18 @@ const Layout = ({ children }: IRouteComponentProps) => {
     return UserModal;
   });
 
-  const login = (payload: { username: string; password: string }) => {
+  const login = (payload: { email: string; password: string }) => {
     return dispatch({
       type: `${ModelNameSpaces.User}/login`,
       payload,
     });
   };
 
-  const register = (payload: { username: string; password: string }) => {
+  const register = (payload: {
+    username: string;
+    password: string;
+    email: string;
+  }) => {
     return dispatch({
       type: `${ModelNameSpaces.User}/register`,
       payload,
