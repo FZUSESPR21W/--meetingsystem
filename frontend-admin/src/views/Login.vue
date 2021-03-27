@@ -1,6 +1,6 @@
 <!--  -->
 <template>
-    <div class='Login'></div>
+    <div class='Login'>login</div>
 </template>
 
 <script>
@@ -10,7 +10,7 @@ export default {
     components: {},
     data () {
         return {
-
+            
         }
     },
     methods: {
