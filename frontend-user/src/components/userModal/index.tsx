@@ -11,9 +11,16 @@ const setClsPrefix = setClsPrefixHOC(ComponentPrefixs.UserModal);
 interface UserModalProps {
   visible: boolean;
   setVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  login: Function;
+  register: Function;
 }
 
-const UserModal = ({ visible, setVisible }: UserModalProps) => {
+const UserModal = ({
+  visible,
+  setVisible,
+  login,
+  register,
+}: UserModalProps) => {
   const [isLogin, setIsLogin] = useState(true);
 
   const layout = {
@@ -24,13 +31,18 @@ const UserModal = ({ visible, setVisible }: UserModalProps) => {
     wrapperCol: { offset: 4, span: 19 },
   };
 
-  const onFinish = (values: any) => {
-    console.log('Success:', values);
+  const onLogin = async (values: any) => {
+    await login(values);
+  };
+
+  const onRegister = async (values: any) => {
+    const { username, password } = values;
+    await register({ username, password });
   };
 
   const loginComponent = () => {
     return (
-      <Form name="login" onFinish={onFinish}>
+      <Form name="login" onFinish={onLogin}>
         <Form.Item
           name="username"
           rules={[{ required: true, message: 'Please input your Username!' }]}
@@ -69,7 +81,7 @@ const UserModal = ({ visible, setVisible }: UserModalProps) => {
 
   const registerComponent = () => {
     return (
-      <Form name="register" onFinish={onFinish} {...layout}>
+      <Form name="register" onFinish={onRegister} {...layout}>
         <Form.Item
           name="username"
           label="用户名"
