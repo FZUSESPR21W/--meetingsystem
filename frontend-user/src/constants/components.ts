@@ -7,6 +7,9 @@ enum ComponentPrefixs {
 
   // 负责头像展示
   CircleLetter = 'CircleLetter',
+
+  // 会议议程卡片
+  ForumCard = 'ForumCard',
 }
 
 export default ComponentPrefixs;

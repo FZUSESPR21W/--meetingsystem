@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { List, Spin, message } from 'antd';
+import { List, Spin, message, Card } from 'antd';
 import { setClsPrefixHOC } from '@/utils/setClsPrefixHOC';
 import { ComponentPrefixs } from '@/constants';
 import CircleLetter from '../circleLetter';
@@ -51,35 +51,37 @@ const ThemeList = () => {
   };
 
   return (
-    <InfiniteScroll
-      initialLoad={false}
-      pageStart={0}
-      loadMore={handleInfiniteOnLoad}
-      hasMore={hasMore && !loading}
-      loader={<Spin />}
-    >
-      <List
-        className={setClsPrefix()}
-        itemLayout="vertical"
-        size="large"
-        dataSource={data}
-        renderItem={(item) => (
-          <List.Item key={item.id}>
-            <List.Item.Meta
-              avatar={<CircleLetter letter="xxx" />}
-              description={'时间: ' + item.chairman}
-              title={'#' + item.issue}
-            />
-            {item.content}
-          </List.Item>
+    <Card title="消息列表">
+      <InfiniteScroll
+        initialLoad={false}
+        pageStart={0}
+        loadMore={handleInfiniteOnLoad}
+        hasMore={hasMore && !loading}
+        loader={<Spin />}
+      >
+        <List
+          className={setClsPrefix()}
+          itemLayout="vertical"
+          size="large"
+          dataSource={data}
+          renderItem={(item) => (
+            <List.Item key={item.id}>
+              <List.Item.Meta
+                avatar={<CircleLetter letter="xxx" />}
+                description={'时间: ' + item.chairman}
+                title={'#' + item.issue}
+              />
+              {item.content}
+            </List.Item>
+          )}
+        />
+        {loading && hasMore && (
+          <div className={setClsPrefix('loading-container')}>
+            <Spin />
+          </div>
         )}
-      />
-      {loading && hasMore && (
-        <div className={setClsPrefix('loading-container')}>
-          <Spin />
-        </div>
-      )}
-    </InfiniteScroll>
+      </InfiniteScroll>
+    </Card>
   );
 };
 
