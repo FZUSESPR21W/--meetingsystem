@@ -10,7 +10,7 @@ const { Header, Content } = ALayout;
 const Layout = ({ children }: IRouteComponentProps) => {
   const [visible, setVisible] = useState(false);
   const dispatch = useDispatch();
-  const { token } = useSelector((store: RootStore) => {
+  const { token, username } = useSelector((store: RootStore) => {
     const { [ModelNameSpaces.User]: UserModal } = store;
     return UserModal;
   });
@@ -35,7 +35,7 @@ const Layout = ({ children }: IRouteComponentProps) => {
         <Link to="/">
           <span className="logo">主页</span>
         </Link>
-        {token && <span className={styles.name}>huro</span>}
+        {token && <span className={styles.name}>{username}</span>}
         {!token && (
           <Button
             type="primary"
@@ -48,7 +48,12 @@ const Layout = ({ children }: IRouteComponentProps) => {
         )}
       </Header>
       <Content>{children}</Content>
-      <UserModal visible={visible} setVisible={setVisible} login={login} register={register}/>
+      <UserModal
+        visible={visible}
+        setVisible={setVisible}
+        login={login}
+        register={register}
+      />
     </ALayout>
   );
 };
