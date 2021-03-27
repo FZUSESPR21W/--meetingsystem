@@ -55,7 +55,7 @@ const request = {
             error_code: 0,
             data: [
                 {
-                    name: "分论坛名",
+                    forum: "分论坛名",
                     id: "asajigduiashduias"
                 }
             ]
