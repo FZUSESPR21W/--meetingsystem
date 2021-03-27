@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Modal } from 'antd';
+import { Modal, message } from 'antd';
 import { setClsPrefixHOC } from '@/utils/setClsPrefixHOC';
 import { ComponentPrefixs } from '@/constants';
 import { Form, Input, Button } from 'antd';
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { UserOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
 import './index.less';
+import delay from 'delay';
 
 const setClsPrefix = setClsPrefixHOC(ComponentPrefixs.UserModal);
 
@@ -23,6 +24,9 @@ const UserModal = ({
 }: UserModalProps) => {
   const [isLogin, setIsLogin] = useState(true);
 
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [registerLoading, setRegisterLoading] = useState(false);
+
   const layout = {
     labelCol: { span: 4 },
     wrapperCol: { span: 19 },
@@ -32,23 +36,43 @@ const UserModal = ({
   };
 
   const onLogin = async (values: any) => {
-    await login(values);
+    setLoginLoading(true);
+    const isOk = await login(values);
+    await delay(2000);
+    setLoginLoading(false);
+    console.log(isOk);
+    if (isOk) {
+      message.info('登录成功');
+      setVisible(false);
+    }
   };
 
   const onRegister = async (values: any) => {
-    const { username, password } = values;
-    await register({ username, password });
+    setRegisterLoading(true);
+    const { email, password } = values;
+    const isOk = await register({ email, password });
+    await delay(2000);
+    setRegisterLoading(false);
+    if (isOk) {
+      message.info('注册成功');
+      onLogin({ email, password });
+    }
   };
 
   const loginComponent = () => {
     return (
       <Form name="login" onFinish={onLogin}>
         <Form.Item
-          name="username"
-          rules={[{ required: true, message: 'Please input your Username!' }]}
+          name="email"
+          rules={[
+            {
+              type: 'email',
+              message: '请输入一个合法的邮箱',
+            },
+          ]}
         >
           <Input
-            prefix={<UserOutlined className="site-form-item-icon" />}
+            prefix={<MailOutlined className="site-form-item-icon" />}
             placeholder="Username"
           />
         </Form.Item>
@@ -67,6 +91,7 @@ const UserModal = ({
             type="primary"
             htmlType="submit"
             className={setClsPrefix('login', 'login-form-button')}
+            loading={loginLoading}
           >
             登录
           </Button>
@@ -83,12 +108,12 @@ const UserModal = ({
     return (
       <Form name="register" onFinish={onRegister} {...layout}>
         <Form.Item
-          name="username"
-          label="用户名"
+          name="email"
+          label="邮箱"
           rules={[
             {
-              required: true,
-              message: '请输入你的用户名!',
+              type: 'email',
+              message: '请输入一个合法的邮箱',
             },
           ]}
           hasFeedback
@@ -137,6 +162,7 @@ const UserModal = ({
         </Form.Item>
         <Form.Item {...tailLayout}>
           <Button
+            loading={registerLoading}
             type="primary"
             htmlType="submit"
             className={setClsPrefix('register', 'register-form-button')}

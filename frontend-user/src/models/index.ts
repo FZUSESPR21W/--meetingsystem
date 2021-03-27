@@ -21,8 +21,8 @@ export interface UserModelType {
 }
 
 export const initialState: UserModelState = {
-  token: null,
-  username: null,
+  token: window.localStorage.getItem('token') || null,
+  username: window.localStorage.getItem('username') || null,
 };
 
 const UserModel: UserModelType = {
@@ -30,24 +30,32 @@ const UserModel: UserModelType = {
   state: initialState,
   effects: {
     *login({ payload }, { call, put, select }) {
-      const { username, password } = payload;
-      const res = yield call(UserService.login, username, password);
+      const { email, password } = payload;
+      const res = yield call(UserService.login, email, password);
       const { error_code, data } = res;
-
-      yield put({
-        type: 'saveToken',
-        payload: data.token,
-      });
-      yield put({
-        type: 'saveName',
-        payload: data.username,
-      });
+      if (error_code === 0) {
+        yield put({
+          type: 'saveToken',
+          payload: data.token,
+        });
+        yield put({
+          type: 'saveName',
+          payload: data.username,
+        });
+        window.localStorage.setItem('token', data.token);
+        window.localStorage.setItem('username', data.username);
+        return true;
+      }
+      return false;
     },
     *register({ payload }, { call, put, select }) {
-      const { username, password } = payload;
-      const res = yield call(UserService.register, username, password);
+      const { email, password } = payload;
+      const res = yield call(UserService.register, email, password);
       const { error_code } = res;
-      console.log(error_code);
+      if (error_code === 0) {
+        return true;
+      }
+      return false;
     },
   },
   reducers: {

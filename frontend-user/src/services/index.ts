@@ -1,4 +1,4 @@
-const login = async (username: string, password: string) => {
+const login = async (email: string, password: string) => {
   return {
     error_code: 0,
     data: {
@@ -9,7 +9,7 @@ const login = async (username: string, password: string) => {
   };
 };
 
-const register = async (username: string, password: string) => {
+const register = async (email: string, password: string) => {
   return {
     error_code: 0,
   };
