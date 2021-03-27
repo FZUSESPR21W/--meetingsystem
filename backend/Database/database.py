@@ -119,8 +119,8 @@ class Data(object):
                 sql = "SELECT * FROM `sub_forum`"
                 cursor.execute(sql)
             else:
-                sql = "SELECT s.`sub_forum_id` AS `id`, s.`issue`, s.`start_time` AS `time`, " \
-                      "u.`username` AS `chairman` FROM `sub_forum` s " \
+                sql = "SELECT s.`sub_forum_id` AS `id`, s.`issue` AS `issue`, s.`start_time` AS `time`, " \
+                      "u.`username` AS `chairman` FROM `sub_forum` s WHERE s.`sub_forum_id`=%s " \
                       "INNER JOIN `user` u ON u.`user_id` = s.`chairman_id`"
                 cursor.execute(sql, (forum_id,))
             result = cursor.fetchall()
@@ -171,10 +171,22 @@ class Data(object):
             cursor.execute(sql, (user_id, sub_forum_id))
             cursor.close()
 
+    # 获取论坛统计数据
+    def get_statistics(self):
+        with self.db.cursor() as c:
+            sql = "SELECT COUNT(*) AS `total` FROM `user`"
+            c.execute(sql)
+            total = c.fetchone()['total']
+
+            sql2 = "SELECT COUNT(user_id) AS `size`, `issue` AS `name` FROM `role` GROUP BY `sub_forum_id`"
+            c.execute(sql2)
+            result = c.fetchall()
+
+            return result, total
+
 
 if __name__ == "__main__" :
 
     db = Data()
 
-    db.add_user(0, "2475945868@qq.com", "123", "nosae")
-    print(db.get_user("2475945868@qq.com", "123"))
+    db.get_forum(2)
