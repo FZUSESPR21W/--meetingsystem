@@ -15,7 +15,7 @@ const ForumCard = (props: ForumCardProps) => {
         <Descriptions.Item label="chairman">主席</Descriptions.Item>
         <Descriptions.Item label="beginTime">开始时间</Descriptions.Item>
       </Descriptions>
-      <Timeline mode="alternate">
+      <Timeline mode="left" className={setClsPrefix("timeline")}>
         <Timeline.Item>Create a services site 2015-09-01</Timeline.Item>
         <Timeline.Item>Solve initial network problems 2015-09-01</Timeline.Item>
         <Timeline.Item>Network problems being solved 2015-09-01</Timeline.Item>

@@ -10,25 +10,24 @@ import CircleLetter from '../circleLetter';
 const setClsPrefix = setClsPrefixHOC(ComponentPrefixs.FollowCard);
 
 interface FollowCardProps {}
+const fetchData = () => {
+  const list = [];
+  for (let i = 0; i < 3; i += 1) {
+    list.push({
+      loading: false,
+      value: {
+        id: Math.random(),
+        issue: 'xxx',
+        follow: i % 2,
+      },
+    });
+  }
+  return list;
+};
 
 const FollowCard = (props: FollowCardProps) => {
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState<any[]>([]);
-
-  const fetchData = () => {
-    const list = [];
-    for (let i = 0; i < 3; i += 1) {
-      list.push({
-        loading: false,
-        value: {
-          id: Math.random(),
-          issue: 'xxx',
-          follow: i % 2,
-        },
-      });
-    }
-    return list;
-  };
+  const [data, setData] = useState<any[]>([...fetchData()]);
 
   const onLoadMore = async () => {
     setLoading(true);
