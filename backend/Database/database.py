@@ -45,7 +45,7 @@ class Data(object):
 
     def __get_roles(self, user_id):
         with self.db.cursor() as cursor:
-            sql = "SELECT `role_type` WHERE `user_id`=%s"
+            sql = "SELECT `role_type` FROM `role` WHERE `user_id`=%s"
             cursor.execute(sql, (user_id,))
             result = cursor.fetchall()
             cursor.close()
@@ -61,7 +61,7 @@ class Data(object):
     # 获取用户所在论坛的角色
     def get_user_role(self, user_id, sub_forum_id):
         with self.db.cursor() as cursor:
-            sql = 'SELECT `role_type` FROM `user` WHERE `user_id`=%s AND `sub_forum_id`=%s'
+            sql = 'SELECT `role_type` FROM `role` WHERE `user_id`=%s AND `sub_forum_id`=%s'
             cursor.execute(sql, (user_id, sub_forum_id,))
             result = cursor.fetchone()
             cursor.close()
@@ -78,7 +78,7 @@ class Data(object):
     # 更新语言
     def update_user_language(self, user_id, language):
         with self.db.cursor() as cursor:
-            sql = "UPDATE `user` SET `language`=%s WHERE `id`=%s"
+            sql = "UPDATE `user` SET `language`=%s WHERE `user_id`=%s"
             cursor.execute(sql, (language, user_id,))
             self.db.commit()
             cursor.close()
@@ -86,22 +86,23 @@ class Data(object):
     # 获取论坛议程
     def get_task(self, forum_id):
         with self.db.cursor() as cursor:
-            sql = 'SELECT * FROM `task` WHERE id=%s'
+            sql = 'SELECT * FROM `task` WHERE `sub_forum_id`=%s'
             cursor.execute(sql, (forum_id,))
             result = cursor.fetchall()
             cursor.close()
             return result
 
+    # 获取分论坛消息
     def get_message(self, forum_id, page):
         with self.db.cursor() as cursor:
             limit = 10
             offset = (page - 1) * limit
             if forum_id is None:
-                sql = "SELECT * FROM `message` LIMIT %s %s"
-                cursor.execute(sql, (offset, limit,))
+                sql = "SELECT * FROM `message` LIMIT %s OFFSET %s"
+                cursor.execute(sql, (limit, offset,))
             else:
-                sql = "SELECT * FROM `message` WHERE `sub_forum_id`=%s LIMIT %s %s"
-                cursor.execute(sql, (forum_id, offset, limit,))
+                sql = "SELECT * FROM `message` WHERE `sub_forum_id`=%s LIMIT %s OFFSET %s"
+                cursor.execute(sql, (forum_id, limit, offset,))
             result = cursor.fetchall()
 
             sql2 = "SELECT COUNT(*) AS total FROM `message`"
@@ -119,8 +120,8 @@ class Data(object):
                 cursor.execute(sql)
             else:
                 sql = "SELECT s.`sub_forum_id` AS `id`, s.`issue` AS `issue`, s.`start_time` AS `time`, " \
-                      "u.`username` AS `chairman` FROM `sub_forum` s WHERE s.`sub_forum_id`=%s " \
-                      "INNER JOIN `user` u ON u.`user_id` = s.`chairman_id`"
+                      "u.`username` AS `chairman` FROM `sub_forum` s " \
+                      "INNER JOIN `user` u ON u.`user_id` = s.`chairman_id` WHERE s.`sub_forum_id`=%s"
                 cursor.execute(sql, (forum_id,))
             result = cursor.fetchall()
             return result
@@ -142,25 +143,25 @@ class Data(object):
         with self.db.cursor() as cursor:
             sql = "SELECT `r`.`sub_forum_id`,`s`.`issue` FROM role AS r JOIN sub_forum AS s ON `r`.`sub_forum_id`=`s`.`sub_forum_id` WHERE `r`.`user_id`=%s"
             cursor.execute(sql, user_id)
-            sub_forum_id = self.db.commit()
+            result = cursor.fetchall()
             cursor.close()
-            print(sub_forum_id)
-            return sub_forum_id
+            return result
 
-    # 所有分论坛    change
+    # 所有分论坛
     def all_forum(self):
         with self.db.cursor() as cursor:
-            sql = "SELECT DISTINCT `r`.`sub_forum_id`,`s`.`issue` FROM role AS r JOIN sub_forum AS s ON `r`.`sub_forum_id`=`s`.`sub_forum_id`"
-            cursor.execute(sql)
-            sub_forum_id = self.db.commit()
+            sql = "SELECT `sub_forum_id` FROM `sub_forum` WHERE `sub_forum_id`!=%s"
+            cursor.execute(sql, 1)
+            result = cursor.fetchall()
             cursor.close()
-            return sub_forum_id
+            return result
 
     # 关注
     def like(self, user_id, sub_forum_id):
         with self.db.cursor() as cursor:
             sql = "INSERT INTO `role` (`sub_forum_id`,`role_type`,`user_id`) VALUES (%s,%s,%s)"
             cursor.execute(sql, (sub_forum_id, 4, user_id))
+            self.db.commit()
             cursor.close()
 
     # 取关
@@ -168,6 +169,7 @@ class Data(object):
         with self.db.cursor() as cursor:
             sql = "DELETE FROM `role` WHERE `user_id`=%s AND `sub_forum_id`=%s"
             cursor.execute(sql, (user_id, sub_forum_id))
+            self.db.commit()
             cursor.close()
 
         # 获取所管理的论坛
@@ -210,6 +212,22 @@ class Data(object):
 
             return result, total
 
+    # 获取论坛统计数据
+    def get_statistics(self):
+        with self.db.cursor() as c:
+            sql = "SELECT COUNT(*) AS `total` FROM `user`"
+            c.execute(sql)
+            total = c.fetchone()['total']
+
+            sql2 = "SELECT COUNT(r.`user_id`) AS `size`, s.`issue` AS `name` " \
+                   "FROM `role` r " \
+                   "INNER JOIN `sub_forum` s " \
+                   "ON s.`sub_forum_id` = r.`sub_forum_id` " \
+                   "GROUP BY r.`sub_forum_id`"
+            c.execute(sql2)
+            result = c.fetchall()
+
+            return result, total
     # 根据秘书id获取对应分论坛关注者
     def get_participant(self, user_id):
         with self.db.cursor() as cursor:
@@ -219,11 +237,20 @@ class Data(object):
             cursor.close()
             return res
 
-if __name__ == "__main__" :
 
+if __name__ == "__main__":
     db = Data()
-
-    db.add_user(0, "2475945868@qq.com", "123", "nosae")
-    print(db.get_user("2475945868@qq.com", "123"))
-
-
+    print(db.get_user('000@qq.com', '123456'))
+    print(db.get_admin('103@qq.com', '123456'))
+    print(db.get_user_role('7', '5'))
+    db.update_user_language('1', '1')
+    print(db.get_task(1))
+    print(db.get_message(1, 1))
+    print(db.get_forum(1))
+    print(db.is_followed(1, 1))
+    print(db.forum_list(1))
+    print(db.all_forum())
+    print(db.is_like(40, 2))
+    print(db.get_statistics())
+    # print(db.get_forum(2))
+    # print()
